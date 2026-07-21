@@ -15,6 +15,21 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js')
+          .then(function(registration) {
+            console.log('Service Worker registered successfully');
+          })
+          .catch(function(err) {
+            console.log('Service Worker registration failed:', err);
+          });
+      });
+    }
+  </script>
+  
   <style>
     * {
       margin: 0;
@@ -1225,7 +1240,7 @@
 </head>
 <body>
 <div class="app" id="app">
-  <span class="version-badge" id="versionBadge">v1.0.2</span>
+  <span class="version-badge" id="versionBadge">v1.0.3</span>
   
   <div class="top-bar">
     <div class="left-group">
@@ -1250,7 +1265,7 @@
           <button class="clear-btn" id="clearTextBtn" title="Clear text">✕</button>
         </span>
       </div>
-      <input type="text" id="ticketText" placeholder="Type or select suggestions..." value="424 · HAPPY HONEYMOON" autocomplete="off">
+      <input type="text" id="ticketText" placeholder="Type your message..." value="" autocomplete="off">
       
       <div class="suggestions-header">
         <span class="label">💡 Suggestions <span class="count" id="selectedCount">(0 selected)</span></span>
@@ -1350,9 +1365,9 @@
     "use strict";
 
     // ============================================================
-    // APP VERSION - UPDATED TO 1.0.2
+    // APP VERSION - v1.0.3
     // ============================================================
-    var APP_VERSION = '1.0.2';
+    var APP_VERSION = '1.0.3';
     var STORAGE_KEY = 'beddecor_suggestions';
     var VERSION_KEY = 'beddecor_version';
 
@@ -2112,10 +2127,10 @@
     }
 
     // ============================================================
-    // SEND WHATSAPP - FIXED: SEND ALL PHOTOS IN ONE SHARE
+    // SEND WHATSAPP - CLEAN VERSION
     // ============================================================
     function sendWhatsApp() {
-      // Collect all photos that have been taken
+      // Collect all photos with data
       var photosToSend = [];
       for (var i = 0; i < state.photos.length; i++) {
         if (state.photos[i].dataUrl) {
@@ -2138,20 +2153,18 @@
       var ticket = ticketInput.value || '';
       var totalPhotos = photosToSend.length;
 
-      // Combined message
+      // Build clean message without extra text
       var messageText = ticket || 'Bed Decoration Photos';
-      if (totalPhotos > 1) messageText += ' (' + totalPhotos + ' photos)';
-
       var encodedMsg = encodeURIComponent('🏨 *' + messageText + '*');
 
-      // Try to share ALL photos together (best method)
+      // Try to share ALL photos together
       if (navigator.share) {
         var filePromises = photosToSend.map(function(photo) {
           return fetch(photo.dataUrl)
             .then(function(res) { return res.blob(); })
             .then(function(blob) {
               var num = photo.index + 1;
-              return new File([blob], 'bed_photo_' + num + '.jpg', { type: 'image/jpeg' });
+              return new File([blob], 'photo_' + num + '.jpg', { type: 'image/jpeg' });
             });
         });
 
@@ -2168,7 +2181,7 @@
                 state.isSending = false;
                 sendBtn.disabled = false;
                 updateButtons();
-                setStatus('✅ All ' + totalPhotos + ' photo(s) shared!', 'success');
+                setStatus('✅ ' + totalPhotos + ' photo(s) shared!', 'success');
               })
               .catch(function(err) {
                 if (err.name !== 'AbortError') {
@@ -2189,8 +2202,10 @@
       }
 
       function fallbackToWhatsApp() {
-        window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-        setStatus('📤 WhatsApp opened. Attach your photos from gallery.', 'info');
+        // Open WhatsApp with the message
+        var url = 'https://api.whatsapp.com/send?text=' + encodedMsg;
+        window.open(url, '_blank');
+        setStatus('📤 WhatsApp opened - attach your photos', 'info');
         state.isSending = false;
         sendBtn.disabled = false;
         updateButtons();
@@ -2294,17 +2309,13 @@
     document.addEventListener('touchstart', touchHandler, { once: true, passive: true });
 
     // ============================================================
-    // INIT
+    // INIT - NO DEFAULT SUGGESTIONS
     // ============================================================
     function init() {
       checkVersion();
       loadSuggestions();
       
-      // Add default suggestions if empty
-      if (state.suggestions.length === 0) {
-        state.suggestions = ['424 · HAPPY HONEYMOON', '425 · HAPPY HONEYMOON', '426 · HAPPY HONEYMOON', '427 · HAPPY HONEYMOON', '428 · HAPPY HONEYMOON', '505 · HAPPY HONEYMOON', '506 · HAPPY HONEYMOON', '507 · HAPPY HONEYMOON', '508 · HAPPY HONEYMOON'];
-        saveSuggestions();
-      }
+      // No default suggestions - user adds their own
       
       renderSuggestions();
       renderMainView();

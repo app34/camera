@@ -1,6 +1,6 @@
-// Service Worker for BedDecor PWA
-var CACHE_NAME = 'beddecor-v1';
-var APP_VERSION = '1.0.0';
+// Service Worker for BedDecor PWA - v1.0.3
+var CACHE_NAME = 'beddecor-v1-0-3';
+var APP_VERSION = '1.0.3';
 
 var ASSETS_TO_CACHE = [
   './',
@@ -21,7 +21,7 @@ self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
-        console.log('Caching assets...');
+        console.log('Caching assets for v' + APP_VERSION + '...');
         return cache.addAll(ASSETS_TO_CACHE);
       })
       .then(function() {
@@ -53,18 +53,14 @@ self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
-        // Return cached response if found
         if (response) {
           return response;
         }
-        // Otherwise fetch from network
         return fetch(event.request)
           .then(function(response) {
-            // Don't cache non-successful responses
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
-            // Clone response for caching
             var responseToCache = response.clone();
             caches.open(CACHE_NAME)
               .then(function(cache) {
@@ -73,7 +69,6 @@ self.addEventListener('fetch', function(event) {
             return response;
           })
           .catch(function() {
-            // Offline fallback for specific requests
             if (event.request.mode === 'navigate') {
               return caches.match('./index.html');
             }

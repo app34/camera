@@ -1,7 +1,7 @@
 {
   "name": "BedDecor Camera",
   "short_name": "BedDecor",
-  "description": "Capture and share bed decoration photos with custom messages",
+  "description": "Capture and share bed decoration photos",
   "start_url": ".",
   "display": "standalone",
   "orientation": "portrait",
