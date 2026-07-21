@@ -62,7 +62,7 @@
       user-select: none;
     }
     
-    /* === APP CONTAINER - FIXED HEIGHT === */
+    /* === APP CONTAINER === */
     .app {
       max-width: 420px;
       width: 100%;
@@ -103,7 +103,7 @@
       letter-spacing: 0.5px;
     }
     
-    /* === TOP BAR - FIXED === */
+    /* === TOP BAR === */
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -262,7 +262,7 @@
     .install-btn.hidden { display: none; }
     .install-btn .icon { font-size: 0.8rem; }
     
-    /* === TICKET BOX - FIXED HEIGHT === */
+    /* === TICKET BOX === */
     .ticket-section {
       position: relative;
       z-index: 1;
@@ -453,7 +453,7 @@
       opacity: 0.6;
     }
     
-    /* === CAMERA PREVIEW - FIXED SIZE === */
+    /* === CAMERA PREVIEW === */
     .camera-container {
       position: relative;
       z-index: 1;
@@ -531,7 +531,7 @@
       transform: rotate(0deg);
     }
     
-    /* === CAMERA CONTROLS - FIXED === */
+    /* === CAMERA CONTROLS === */
     .camera-controls {
       display: flex;
       gap: 10px;
@@ -658,7 +658,7 @@
     }
     .btn-action .icon { font-size: 0.75rem; }
     
-    /* === THUMBNAILS - FIXED === */
+    /* === THUMBNAILS === */
     .thumbnails-row {
       display: flex;
       gap: 10px;
@@ -762,7 +762,7 @@
       backdrop-filter: blur(4px);
     }
     
-    /* === STATUS BAR - FIXED === */
+    /* === STATUS BAR === */
     .status-bar {
       background: #0c1322;
       border-radius: 30px;
@@ -1287,7 +1287,7 @@
     </div>
   </div>
 
-  <!-- TICKET BOX WITH SUGGESTIONS -->
+  <!-- TICKET BOX -->
   <div class="ticket-section">
     <div class="ticket-box">
       <div class="label-row">
@@ -1303,13 +1303,11 @@
         <span class="label">💡 Suggestions <span class="count" id="selectedCount">(0 selected)</span></span>
         <button class="add-btn" id="addSuggestionBtn">➕ Add</button>
       </div>
-      <div class="suggestions" id="suggestionsContainer">
-        <!-- Rendered by JS -->
-      </div>
+      <div class="suggestions" id="suggestionsContainer"></div>
     </div>
   </div>
 
-  <!-- CAMERA PREVIEW - FIXED SIZE -->
+  <!-- CAMERA -->
   <div class="camera-container">
     <div class="camera-preview" id="cameraPreview">
       <div class="placeholder" id="mainPlaceholder">
@@ -1321,7 +1319,6 @@
       <img id="mainPreviewImg" style="display:none;" alt="Preview">
     </div>
 
-    <!-- CAMERA CONTROLS - FIXED -->
     <div class="camera-controls">
       <button class="btn-action danger" id="retakeBtn" disabled>
         <span class="icon">🔄</span> Retake
@@ -1336,7 +1333,7 @@
     </div>
   </div>
 
-  <!-- THUMBNAILS - FIXED -->
+  <!-- THUMBNAILS -->
   <div class="thumbnails-row">
     <div class="thumbnail" id="thumb0" data-index="0">
       <span class="thumb-placeholder">📷</span>
@@ -1356,7 +1353,7 @@
     </div>
   </div>
 
-  <!-- STATUS BAR - FIXED -->
+  <!-- STATUS -->
   <div class="status-bar">
     <span class="status-dot gray" id="statusDot"></span>
     <span id="statusText">Initializing camera...</span>
@@ -1430,9 +1427,11 @@
       videoStream: null,
       isVideoRunning: false,
       isInitializing: false,
-      isSending: false
+      isSending: false,
+      sendQueue: []
     };
 
+    // DOM REFS
     var mainPreviewImg = document.getElementById('mainPreviewImg');
     var mainPlaceholder = document.getElementById('mainPlaceholder');
     var cameraPreview = document.getElementById('cameraPreview');
@@ -1474,6 +1473,9 @@
     var versionBadge = document.getElementById('versionBadge');
     var installBtn = document.getElementById('installBtn');
 
+    // ============================================================
+    // VERSION & STORAGE
+    // ============================================================
     function checkVersion() {
       try {
         var savedVersion = localStorage.getItem(VERSION_KEY);
@@ -1528,6 +1530,9 @@
       }
     }
 
+    // ============================================================
+    // HELPERS
+    // ============================================================
     function setStatus(msg, type) {
       type = type || 'info';
       statusText.textContent = msg;
@@ -1558,6 +1563,9 @@
       charCount.textContent = ticketInput.value.length;
     }
 
+    // ============================================================
+    // CAMERA
+    // ============================================================
     function startCamera() {
       if (state.isVideoRunning) return Promise.resolve(true);
       if (state.isInitializing) return Promise.resolve(false);
@@ -1665,6 +1673,9 @@
       startCamera();
     });
 
+    // ============================================================
+    // SUGGESTIONS
+    // ============================================================
     function renderSuggestions() {
       suggestionsContainer.innerHTML = '';
       
@@ -1718,6 +1729,9 @@
       }
     }
 
+    // ============================================================
+    // SETTINGS
+    // ============================================================
     function renderSettings() {
       settingsList.innerHTML = '';
       
@@ -1876,6 +1890,9 @@
       addModal.classList.remove('active');
     }
 
+    // ============================================================
+    // EVENTS
+    // ============================================================
     settingsBtn.addEventListener('click', function(e) {
       e.preventDefault();
       state.editingIndex = -1;
@@ -2018,6 +2035,9 @@
       setStatus('🗑️ Message cleared', 'info');
     });
 
+    // ============================================================
+    // RENDER
+    // ============================================================
     function renderMainView() {
       var photo = state.photos[state.selectedIndex];
       if (photo.dataUrl) {
@@ -2072,6 +2092,9 @@
       }
     }
 
+    // ============================================================
+    // CAPTURE
+    // ============================================================
     function capturePhoto() {
       if (!state.cameraReady) {
         startCamera().then(function(started) {
@@ -2148,46 +2171,60 @@
     }
 
     // ============================================================
-    // SEND WHATSAPP - SEND EACH PHOTO AS SEPARATE MESSAGE
+    // SEND WHATSAPP - SEND EACH PHOTO SEPARATELY
     // ============================================================
     function sendWhatsApp() {
-      var photosWithData = state.photos.filter(function(p) { return p.dataUrl !== null; });
-      if (photosWithData.length === 0) {
+      // Get all photos that have data
+      var photosToSend = [];
+      for (var i = 0; i < state.photos.length; i++) {
+        if (state.photos[i].dataUrl) {
+          photosToSend.push({
+            index: i,
+            dataUrl: state.photos[i].dataUrl
+          });
+        }
+      }
+
+      if (photosToSend.length === 0) {
         setStatus('⚠️ No photos to send', 'error');
         return;
       }
 
       state.isSending = true;
       sendBtn.disabled = true;
-      setStatus('📤 Sending ' + photosWithData.length + ' photo(s)...', 'warning');
+      setStatus('📤 Sending ' + photosToSend.length + ' photo(s)...', 'warning');
 
       var ticket = ticketInput.value || '';
-      
-      // Process each photo one by one
-      function sendPhoto(index) {
-        if (index >= photosWithData.length) {
+      var currentIndex = 0;
+
+      function sendNextPhoto() {
+        if (currentIndex >= photosToSend.length) {
           // All photos sent
           state.isSending = false;
           sendBtn.disabled = false;
           updateButtons();
-          setStatus('✅ All ' + photosWithData.length + ' photo(s) sent!', 'success');
+          setStatus('✅ All ' + photosToSend.length + ' photo(s) sent!', 'success');
           return;
         }
 
-        var photo = photosWithData[index];
-        var photoNumber = state.photos.indexOf(photo) + 1;
-        
+        var photo = photosToSend[currentIndex];
+        var photoNumber = photo.index + 1;
+        var totalPhotos = photosToSend.length;
+
+        // Build message for this photo
         var message = '';
         if (ticket) {
           message = '🏨 *' + ticket + '*%0a%0a';
         } else {
           message = '🏨 *Bed Decoration Photo ' + photoNumber + '*%0a%0a';
         }
-        message += '📸 Photo ' + photoNumber;
+        message += '📸 Photo ' + photoNumber + ' of ' + totalPhotos;
 
         var encodedMsg = encodeURIComponent(message);
 
-        // Use Web Share API if available
+        setStatus('📤 Sending photo ' + photoNumber + ' of ' + totalPhotos + '...', 'warning');
+
+        // Try Web Share API first
         if (navigator.share && photo.dataUrl) {
           fetch(photo.dataUrl)
             .then(function(res) { return res.blob(); })
@@ -2201,9 +2238,9 @@
               if (navigator.canShare && navigator.canShare(shareData)) {
                 navigator.share(shareData)
                   .then(function() {
-                    setStatus('📤 Photo ' + photoNumber + ' sent (' + (index+1) + '/' + photosWithData.length + ')', 'success');
-                    // Send next photo after delay
-                    setTimeout(function() { sendPhoto(index + 1); }, 800);
+                    currentIndex++;
+                    // Small delay before sending next
+                    setTimeout(sendNextPhoto, 1000);
                   })
                   .catch(function(err) {
                     if (err.name !== 'AbortError') {
@@ -2212,7 +2249,7 @@
                       sendBtn.disabled = false;
                       updateButtons();
                     } else {
-                      // User cancelled, stop sending
+                      // User cancelled - stop sending
                       state.isSending = false;
                       sendBtn.disabled = false;
                       updateButtons();
@@ -2220,31 +2257,33 @@
                     }
                   });
               } else {
-                // Fallback: Open WhatsApp with text
+                // Fallback to WhatsApp URL
                 window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-                setStatus('📤 WhatsApp opened for photo ' + photoNumber, 'info');
-                // Continue to next after delay
-                setTimeout(function() { sendPhoto(index + 1); }, 1200);
+                currentIndex++;
+                setTimeout(sendNextPhoto, 1200);
               }
             })
             .catch(function() {
-              // Fallback: Open WhatsApp with text
+              // Fallback to WhatsApp URL
               window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-              setStatus('📤 WhatsApp opened for photo ' + photoNumber, 'info');
-              setTimeout(function() { sendPhoto(index + 1); }, 1200);
+              currentIndex++;
+              setTimeout(sendNextPhoto, 1200);
             });
         } else {
-          // Fallback: Open WhatsApp with text
+          // Fallback to WhatsApp URL
           window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-          setStatus('📤 WhatsApp opened for photo ' + photoNumber, 'info');
-          setTimeout(function() { sendPhoto(index + 1); }, 1200);
+          currentIndex++;
+          setTimeout(sendNextPhoto, 1200);
         }
       }
 
-      // Start sending first photo
-      sendPhoto(0);
+      // Start sending
+      sendNextPhoto();
     }
 
+    // ============================================================
+    // THUMBNAILS
+    // ============================================================
     thumbnails.forEach(function(thumb, idx) {
       thumb.addEventListener('click', function(e) {
         e.preventDefault();
@@ -2272,6 +2311,9 @@
       }
     });
 
+    // ============================================================
+    // MODAL
+    // ============================================================
     modalClose.addEventListener('click', function(e) {
       e.preventDefault();
       modal.classList.remove('active');
@@ -2282,6 +2324,9 @@
       }
     });
 
+    // ============================================================
+    // PWA INSTALL
+    // ============================================================
     var deferredPrompt = null;
 
     window.addEventListener('beforeinstallprompt', function(e) {
@@ -2309,6 +2354,9 @@
       installBtn.classList.add('hidden');
     });
 
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
     captureBtn.addEventListener('click', capturePhoto);
     retakeBtn.addEventListener('click', retakePhoto);
     sendBtn.addEventListener('click', sendWhatsApp);
@@ -2329,6 +2377,9 @@
     };
     document.addEventListener('touchstart', touchHandler, { once: true, passive: true });
 
+    // ============================================================
+    // INIT
+    // ============================================================
     function init() {
       checkVersion();
       loadSuggestions();
