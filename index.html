@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>BedDecor · Honeymoon Cam</title>
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQmVkRGVjb3IiLCJzaG9ydF9uYW1lIjoiQmVkRGVjb3IiLCJkZXNjcmlwdGlvbiI6IkJlZCBEZWNvcmF0aW9uIFBob3RvIENhbSIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwic3RhcnRfdXJsIjoiLiIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWwsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA1MTIgNTEyJz48cmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzYwJyBmaWxsPScjZmY1Njc4Jy8+PHRleHQgeD0nOTAnIHk9JzM1MCcgZm9udC1zaXplPScyODAnIGZpbGw9J3doaXRlJyBmb250LWZhbWlseT0nc2Fucy1zZXJpZic+8J+SvTwvdGV4dD48L3N2Zz4iLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+  <style>
+    /* === RESET & BASE === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #080b12;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      font-family: -apple-system, 'SF Pro Display', 'Segoe UI', Roboto, system-ui, sans-serif;
+      touch-action: manipulation;
+    }
+    .app {
+      max-width: 420px;
+      width: 100%;
+      background: #0f1625;
+      border-radius: 44px 44px 32px 32px;
+      padding: 18px 14px 22px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    .app::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 20% 10%, rgba(255,107,129,0.06) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 90%, rgba(100,140,255,0.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    /* === HEADER === */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px 14px 4px;
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-left .logo {
+      font-size: 1.7rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff8aa3, #ff5e7c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    .header-left .logo-icon {
+      font-size: 1.5rem;
+      -webkit-text-fill-color: initial;
+    }
+    .header-left .sub {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #7a8db5;
+      background: #1a2338;
+      padding: 3px 12px;
+      border-radius: 20px;
+      border: 1px solid #2d3d60;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      -webkit-text-fill-color: #7a8db5;
+    }
+    /* === PERMISSION BUTTON - BIG & OBVIOUS === */
+    .permission-section {
+      position: relative;
+      z-index: 2;
+      margin-bottom: 16px;
+    }
+    .permission-btn {
+      width: 100%;
+      padding: 18px 24px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+      touch-action: manipulation;
+      letter-spacing: 0.5px;
+      position: relative;
+    }
+    .permission-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+    }
+    .permission-btn:disabled {
+      opacity: 0.6;
+      transform: translateY(2px);
+      box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+      cursor: not-allowed;
+    }
+    .permission-btn .btn-icon {
+      font-size: 2rem;
+    }
+    .permission-btn .btn-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.2;
+    }
+    .permission-btn .btn-text .main {
+      font-size: 1.1rem;
+    }
+    .permission-btn .btn-text .sub {
+      font-size: 0.75rem;
+      font-weight: 400;
+      opacity: 0.85;
+    }
+    /* Different states */
+    .permission-btn.request {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      border: 2px solid #60a5fa;
+      animation: pulse-blue 2s infinite;
+    }
+    .permission-btn.granted {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      border: 2px solid #4ade80;
+    }
+    .permission-btn.denied {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: 2px solid #f87171;
+      animation: pulse-red 2s infinite;
+    }
+    .permission-btn.checking {
+      background: #374151;
+      color: #9ca3af;
+      border: 2px solid #4b5563;
+    }
+    @keyframes pulse-blue {
+      0%, 100% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 0 0 rgba(59,130,246,0.4); }
+      50% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 0 15px rgba(59,130,246,0); }
+    }
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 0 0 rgba(239,68,68,0.4); }
+      50% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 0 15px rgba(239,68,68,0); }
+    }
+    .permission-status {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #6a7ea8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .permission-status .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .permission-status .dot.green { background: #4ade80; }
+    .permission-status .dot.red { background: #f87171; }
+    .permission-status .dot.yellow { background: #facc15; }
+    .permission-status .dot.gray { background: #4a5f89; }
+    /* === TICKET BOX === */
+    .ticket-box {
+      background: #141d31;
+      border-radius: 28px;
+      padding: 12px 16px 14px;
+      margin-bottom: 18px;
+      border: 1px solid #26334f;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 1;
+      transition: border-color 0.2s;
+    }
+    .ticket-box:focus-within {
+      border-color: #ff5e7c;
+    }
+    .ticket-box .label-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .ticket-box .label-row .tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #8a9fc9;
+      background: #1f2a44;
+      padding: 2px 14px;
+      border-radius: 30px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid #2f4065;
+    }
+    .ticket-box .label-row .hint {
+      font-size: 0.6rem;
+      color: #5f739b;
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .ticket-box .label-row .hint svg {
+      width: 12px;
+      height: 12px;
+      fill: #4ade80;
+    }
+    .ticket-box input {
+      width: 100%;
+      background: #0a111f;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #eef4ff;
+      outline: none;
+      transition: 0.2s;
+      letter-spacing: 0.2px;
+    }
+    .ticket-box input::placeholder {
+      color: #3d517a;
+      font-weight: 400;
+    }
+    .ticket-box input:focus {
+      box-shadow: 0 0 0 2px rgba(255,94,124,0.2);
+    }
+    /* === PHOTO CARDS === */
+    .photo-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin: 6px 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .photo-card {
+      background: #0c1322;
+      border-radius: 28px;
+      padding: 14px;
+      border: 1px solid #1f2a44;
+      box-shadow: 0 4px 0 #060a12;
+      transition: all 0.2s ease;
+    }
+    .photo-card .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 2px;
+    }
+    .photo-card .card-header .index-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #6a7ea8;
+      background: #182136;
+      padding: 2px 14px;
+      border-radius: 20px;
+      border: 1px solid #2a3857;
+    }
+    .photo-card .card-header .status-indicator {
+      font-size: 0.6rem;
+      color: #4a5f89;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .photo-card .card-header .status-indicator .fill {
+      color: #4ade80;
+    }
+    .photo-card .card-header .status-indicator .fill.empty {
+      color: #6a7ea8;
+    }
+    .photo-card .preview {
+      background: #080e1a;
+      border-radius: 20px;
+      min-height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #1a2642;
+      transition: all 0.3s ease;
+    }
+    .photo-card .preview.has-image {
+      border-color: #2d4068;
+    }
+    .photo-card .preview img {
+      width: 100%;
+      height: auto;
+      max-height: 260px;
+      object-fit: contain;
+      display: block;
+      border-radius: 16px;
+    }
+    .photo-card .preview .placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 28px 12px;
+      color: #4a5f89;
+    }
+    .photo-card .preview .placeholder .big-icon {
+      font-size: 2.8rem;
+      opacity: 0.4;
+    }
+    .photo-card .preview .placeholder .main-text {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #6a80ad;
+    }
+    .photo-card .preview .placeholder .sub-text {
+      font-size: 0.65rem;
+      color: #3d517a;
+    }
+    .photo-card .preview .text-overlay-preview {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      padding: 6px 20px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border: 1px solid rgba(255,255,255,0.08);
+      pointer-events: none;
+    }
+    .photo-card .preview .text-overlay-preview.hidden {
+      display: none;
+    }
+    .photo-card .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .photo-card .action-row .text-input {
+      flex: 2 1 120px;
+      background: #0a111f;
+      border: 1px solid #1f2a44;
+      border-radius: 30px;
+      padding: 9px 16px;
+      font-size: 0.8rem;
+      font-weight: 450;
+      color: #eef4ff;
+      outline: none;
+      transition: 0.2s;
+      min-width: 80px;
+    }
+    .photo-card .action-row .text-input:focus {
+      border-color: #ff5e7c;
+      box-shadow: 0 0 0 2px rgba(255,94,124,0.15);
+    }
+    .photo-card .action-row .text-input::placeholder {
+      color: #3d517a;
+    }
+    .btn {
+      border: none;
+      border-radius: 30px;
+      padding: 9px 16px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      touch-action: manipulation;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+    .btn:active {
+      transform: scale(0.94);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #ff5e7c, #e94a6a);
+      color: #fff;
+      box-shadow: 0 4px 0 #a33b4f, 0 2px 8px rgba(255,94,124,0.25);
+      border: 1px solid #ff7a94;
+    }
+    .btn-primary:active {
+      box-shadow: 0 1px 0 #a33b4f;
+      transform: translateY(3px) scale(0.96);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #a33b4f;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: #1f2a44;
+      color: #b0c5ef;
+      border: 1px solid #32456b;
+      box-shadow: 0 4px 0 #0c1322;
+    }
+    .btn-secondary:active {
+      box-shadow: 0 1px 0 #0c1322;
+      transform: translateY(3px) scale(0.96);
+    }
+    .btn-danger {
+      background: #a83242;
+      color: #fff;
+      border: 1px solid #c94a5a;
+      box-shadow: 0 4px 0 #5e1d28;
+    }
+    .btn-danger:active {
+      box-shadow: 0 1px 0 #5e1d28;
+      transform: translateY(3px) scale(0.96);
+    }
+    .btn-whatsapp {
+      background: #25D366;
+      color: #0a1a10;
+      border: 1px solid #4ae08a;
+      box-shadow: 0 4px 0 #158a45;
+      font-weight: 700;
+    }
+    .btn-whatsapp:active {
+      box-shadow: 0 1px 0 #158a45;
+      transform: translateY(3px) scale(0.96);
+    }
+    .btn-whatsapp:disabled {
+      opacity: 0.5;
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #158a45;
+      cursor: not-allowed;
+    }
+    .btn-icon {
+      padding: 9px 12px;
+      font-size: 1rem;
+    }
+    .global-actions {
+      display: flex;
+      gap: 10px;
+      margin: 6px 0 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .global-actions .btn {
+      flex: 1;
+      padding: 12px 10px;
+      font-size: 0.85rem;
+    }
+    .status-bar {
+      background: #0c1322;
+      border-radius: 40px;
+      padding: 10px 18px;
+      font-size: 0.75rem;
+      color: #8a9fc9;
+      text-align: center;
+      border: 1px solid #1a2642;
+      margin-top: 6px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 450;
+      min-height: 44px;
+    }
+    .status-bar .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .status-bar .status-dot.green { background: #4ade80; }
+    .status-bar .status-dot.yellow { background: #facc15; }
+    .status-bar .status-dot.red { background: #f87171; }
+    .status-bar .status-dot.gray { background: #4a5f89; }
+    .footer {
+      font-size: 0.6rem;
+      color: #34466b;
+      text-align: center;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #141d31;
+      letter-spacing: 0.3px;
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 420px) {
+      .app { padding: 14px 10px 18px; border-radius: 32px; }
+      .header-left .logo { font-size: 1.4rem; }
+      .header-left .sub { font-size: 0.55rem; padding: 2px 10px; }
+      .photo-card .preview { min-height: 130px; }
+      .btn { font-size: 0.7rem; padding: 8px 12px; }
+      .global-actions .btn { font-size: 0.75rem; padding: 10px 8px; }
+      .permission-btn { padding: 14px 18px; font-size: 1rem; }
+      .permission-btn .btn-icon { font-size: 1.6rem; }
+      .permission-btn .btn-text .main { font-size: 0.95rem; }
+    }
+    @media (max-width: 360px) {
+      .photo-card .action-row .text-input { flex: 1 1 100%; }
+      .photo-card .action-row .btn { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <span class="logo"><span class="logo-icon">📸</span> Bed<span style="color:#ff5e7c; -webkit-text-fill-color:#ff5e7c;">Decor</span></span>
+      <span class="sub">✦ Honeymoon</span>
+    </div>
+  </div>
+
+  <!-- === BIG PERMISSION BUTTON - TRIGGERS BROWSER POPUP === -->
+  <div class="permission-section">
+    <button class="permission-btn request" id="permissionBtn">
+      <span class="btn-icon">📷</span>
+      <span class="btn-text">
+        <span class="main" id="permMain">🔴 Tap to Allow Camera</span>
+        <span class="sub" id="permSub">Browser will ask for permission</span>
+      </span>
+    </button>
+    <div class="permission-status" id="permStatus">
+      <span class="dot gray" id="permDot"></span>
+      <span id="permLabel">Tap the button above to enable camera</span>
+    </div>
+  </div>
+
+  <!-- TICKET BOX -->
+  <div class="ticket-box">
+    <div class="label-row">
+      <span class="tag">🎫 Ticket</span>
+      <span class="hint">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        auto-attach
+      </span>
+    </div>
+    <input type="text" id="ticketText" placeholder="Room number &amp; message..." value="407 · HAPPY HONEYMOON">
+  </div>
+
+  <!-- PHOTO GRID -->
+  <div class="photo-grid">
+    <!-- Card 1 -->
+    <div class="photo-card" data-index="0">
+      <div class="card-header">
+        <span class="index-badge">📷 01</span>
+        <span class="status-indicator" id="statusIndicator0"><span class="fill empty">●</span> empty</span>
+      </div>
+      <div class="preview" id="preview0">
+        <div class="placeholder" id="placeholder0">
+          <span class="big-icon">🖼️</span>
+          <span class="main-text">No photo yet</span>
+          <span class="sub-text">tap «Take» to capture</span>
+        </div>
+        <img id="img0" style="display:none;" alt="Photo 1">
+        <div class="text-overlay-preview hidden" id="textOverlayPreview0"></div>
+      </div>
+      <div class="action-row">
+        <input class="text-input" id="textOverlay0" placeholder="Text overlay" value="407 · HAPPY HONEYMOON">
+        <button class="btn btn-primary" id="takePhoto0">📸 Take</button>
+        <button class="btn btn-secondary btn-icon" id="removePhoto0">✖</button>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="photo-card" data-index="1">
+      <div class="card-header">
+        <span class="index-badge">📷 02</span>
+        <span class="status-indicator" id="statusIndicator1"><span class="fill empty">●</span> empty</span>
+      </div>
+      <div class="preview" id="preview1">
+        <div class="placeholder" id="placeholder1">
+          <span class="big-icon">🖼️</span>
+          <span class="main-text">No photo yet</span>
+          <span class="sub-text">tap «Take» to capture</span>
+        </div>
+        <img id="img1" style="display:none;" alt="Photo 2">
+        <div class="text-overlay-preview hidden" id="textOverlayPreview1"></div>
+      </div>
+      <div class="action-row">
+        <input class="text-input" id="textOverlay1" placeholder="Text overlay" value="506 · HAPPY HONEYMOON">
+        <button class="btn btn-primary" id="takePhoto1">📸 Take</button>
+        <button class="btn btn-secondary btn-icon" id="removePhoto1">✖</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL ACTIONS -->
+  <div class="global-actions">
+    <button class="btn btn-whatsapp" id="sendWhatsAppBtn">💬 WhatsApp</button>
+    <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar" id="statusMsg">
+    <span class="status-dot gray" id="statusDot"></span>
+    <span id="statusText">Tap the blue button to enable camera</span>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">tap text to edit · ticket auto-attaches to every photo</div>
+</div>
+
+<script>
+  (function() {
+    "use strict";
+
+    // --- STATE ---
+    const state = {
+      photos: [
+        { dataUrl: null, text: "407 · HAPPY HONEYMOON" },
+        { dataUrl: null, text: "506 · HAPPY HONEYMOON" }
+      ],
+      cameraReady: false
+    };
+
+    // --- DOM REFS ---
+    const imgEls = [document.getElementById('img0'), document.getElementById('img1')];
+    const placeholders = [document.getElementById('placeholder0'), document.getElementById('placeholder1')];
+    const textInputs = [document.getElementById('textOverlay0'), document.getElementById('textOverlay1')];
+    const previewOverlays = [document.getElementById('textOverlayPreview0'), document.getElementById('textOverlayPreview1')];
+    const statusIndicators = [document.getElementById('statusIndicator0'), document.getElementById('statusIndicator1')];
+    const ticketInput = document.getElementById('ticketText');
+    const statusText = document.getElementById('statusText');
+    const statusDot = document.getElementById('statusDot');
+    const takeBtns = [document.getElementById('takePhoto0'), document.getElementById('takePhoto1')];
+    const sendBtn = document.getElementById('sendWhatsAppBtn');
+
+    // Permission button elements
+    const permBtn = document.getElementById('permissionBtn');
+    const permMain = document.getElementById('permMain');
+    const permSub = document.getElementById('permSub');
+    const permDot = document.getElementById('permDot');
+    const permLabel = document.getElementById('permLabel');
+
+    // --- HELPERS ---
+    function renderCards() {
+      for (let i = 0; i < 2; i++) {
+        const img = imgEls[i];
+        const ph = placeholders[i];
+        const inp = textInputs[i];
+        const overlay = previewOverlays[i];
+        const indicator = statusIndicators[i];
+        const photo = state.photos[i];
+
+        const hasImage = !!photo.dataUrl;
+        const previewDiv = img.closest('.preview');
+
+        if (hasImage) {
+          img.src = photo.dataUrl;
+          img.style.display = 'block';
+          ph.style.display = 'none';
+          previewDiv.classList.add('has-image');
+          if (photo.text) {
+            overlay.textContent = photo.text;
+            overlay.classList.remove('hidden');
+          } else {
+            overlay.classList.add('hidden');
+          }
+          indicator.innerHTML = '<span class="fill" style="color:#4ade80;">●</span> ready';
+        } else {
+          img.style.display = 'none';
+          ph.style.display = 'flex';
+          previewDiv.classList.remove('has-image');
+          overlay.classList.add('hidden');
+          indicator.innerHTML = '<span class="fill empty">●</span> empty';
+        }
+
+        if (inp.value !== photo.text) {
+          inp.value = photo.text || '';
+        }
+        if (!photo.text && ticketInput.value) {
+          photo.text = ticketInput.value;
+          inp.value = ticketInput.value;
+        }
+      }
+      updateButtons();
+    }
+
+    function updateButtons() {
+      const hasPhotos = state.photos.some(p => p.dataUrl);
+      sendBtn.disabled = !hasPhotos || !state.cameraReady;
+      takeBtns.forEach(btn => {
+        btn.disabled = !state.cameraReady;
+      });
+    }
+
+    function setStatus(msg, type = 'info') {
+      statusText.textContent = msg;
+      statusDot.className = 'status-dot';
+      if (type === 'success') statusDot.classList.add('green');
+      else if (type === 'warning') statusDot.classList.add('yellow');
+      else if (type === 'error') statusDot.classList.add('red');
+      else statusDot.classList.add('gray');
+    }
+
+    function updatePermissionUI(status, main, sub, dotColor, label) {
+      permBtn.className = 'permission-btn ' + status;
+      permMain.textContent = main;
+      permSub.textContent = sub;
+      permDot.className = 'dot ' + dotColor;
+      permLabel.textContent = label;
+      
+      // Enable/disable button
+      permBtn.disabled = (status === 'checking' || status === 'granted');
+    }
+
+    // --- THE MAIN PERMISSION FUNCTION - TRIGGERS BROWSER POPUP ---
+    async function requestCameraPermission() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setStatus('❌ Camera not supported on this device', 'error');
+        updatePermissionUI('denied', '❌ Not Supported', 'Camera not available', 'red', 'Camera not supported');
+        return false;
+      }
+
+      updatePermissionUI('checking', '⏳ Requesting Camera...', 'Please wait for browser popup', 'gray', 'Checking permission...');
+      setStatus('📷 Requesting camera access...', 'warning');
+
+      try {
+        // This TRIGGERS the native browser permission popup!
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        });
+        
+        // Success! Permission granted
+        stream.getTracks().forEach(t => t.stop());
+        state.cameraReady = true;
+        
+        updatePermissionUI('granted', '✅ Camera Ready!', 'Permission granted ✅', 'green', 'Camera access granted');
+        setStatus('📸 Camera ready! Take photos below.', 'success');
+        renderCards();
+        return true;
+
+      } catch (error) {
+        console.error('Camera permission error:', error);
+        
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          // User denied or browser blocked
+          updatePermissionUI('denied', '⚠️ Camera Blocked', 'Tap to try again', 'red', 'Permission denied');
+          setStatus('⚠️ Camera access denied. Tap the blue button to try again.', 'error');
+          return false;
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          updatePermissionUI('denied', '❌ No Camera Found', 'No camera detected', 'red', 'No camera available');
+          setStatus('❌ No camera found on this device', 'error');
+          return false;
+        } else {
+          updatePermissionUI('denied', '❌ Error', error.message || 'Unknown error', 'red', 'Camera error');
+          setStatus('❌ Camera error: ' + error.message, 'error');
+          return false;
+        }
+      }
+    }
+
+    // --- PERMISSION BUTTON CLICK ---
+    permBtn.addEventListener('click', async function() {
+      if (this.disabled) return;
+      
+      // If already granted, just show status
+      if (state.cameraReady) {
+        setStatus('✅ Camera already accessible', 'success');
+        return;
+      }
+
+      // If denied, try again
+      if (permBtn.className.includes('denied')) {
+        // Reset and try again
+        await requestCameraPermission();
+        return;
+      }
+
+      // Otherwise, request permission (triggers browser popup)
+      await requestCameraPermission();
+    });
+
+    // --- CHECK PERMISSION ON LOAD (without triggering popup) ---
+    async function checkPermissionOnLoad() {
+      // Don't trigger popup, just check status
+      if (navigator.permissions && navigator.permissions.query) {
+        try {
+          const permStatus = await navigator.permissions.query({ name: 'camera' });
+          if (permStatus.state === 'granted') {
+            // Already granted, verify with a quick test
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+              video: { facingMode: 'environment' } 
+            });
+            stream.getTracks().forEach(t => t.stop());
+            state.cameraReady = true;
+            updatePermissionUI('granted', '✅ Camera Ready!', 'Permission already granted', 'green', 'Camera ready');
+            setStatus('📸 Camera ready! Take photos below.', 'success');
+            renderCards();
+            return true;
+          } else if (permStatus.state === 'denied') {
+            updatePermissionUI('denied', '⚠️ Camera Blocked', 'Tap to try again', 'red', 'Permission denied');
+            setStatus('⚠️ Camera access denied. Tap the blue button to try again.', 'error');
+            return false;
+          }
+        } catch (e) {
+          // Permissions API not supported or error
+        }
+      }
+      
+      // Default state - request permission
+      updatePermissionUI('request', '🔴 Tap to Allow Camera', 'Browser will ask for permission', 'yellow', 'Permission required');
+      setStatus('📷 Tap the blue button to enable camera', 'warning');
+      return false;
+    }
+
+    // --- TAKE PHOTO ---
+    async function takePhoto(index) {
+      if (!state.cameraReady) {
+        setStatus('⚠️ Camera not ready. Tap the blue button first.', 'error');
+        // Try to request permission automatically
+        await requestCameraPermission();
+        if (!state.cameraReady) return;
+      }
+
+      setStatus('📷 Opening camera...', 'warning');
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        });
+        
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.setAttribute('playsinline', 'true');
+        video.style.width = '100%';
+        video.style.height = 'auto';
+        video.style.maxHeight = '300px';
+        video.style.borderRadius = '20px';
+        video.style.background = '#080e1a';
+
+        const previewArea = document.getElementById(`preview${index}`);
+        const origPh = placeholders[index];
+        const origImg = imgEls[index];
+        origImg.style.display = 'none';
+        origPh.style.display = 'none';
+
+        const vidContainer = document.createElement('div');
+        vidContainer.style.width = '100%';
+        vidContainer.appendChild(video);
+        previewArea.appendChild(vidContainer);
+
+        video.play().then(() => {
+          setTimeout(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 1280;
+            canvas.height = video.videoHeight || 720;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const ticket = ticketInput.value || '';
+            const photoText = textInputs[index].value || '';
+            let combined = ticket;
+            if (photoText && photoText.trim() !== ticket.trim()) {
+              combined = combined ? `${combined} · ${photoText}` : photoText;
+            }
+
+            if (combined) {
+              ctx.font = 'bold 50px -apple-system, "SF Pro Display", system-ui, sans-serif';
+              ctx.shadowColor = 'rgba(0,0,0,0.9)';
+              ctx.shadowBlur = 20;
+              ctx.fillStyle = '#ffffff';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'bottom';
+              const metrics = ctx.measureText(combined);
+              const tw = metrics.width + 80;
+              const th = 90;
+              const tx = (canvas.width - tw) / 2;
+              const ty = canvas.height - 70 - th;
+              ctx.shadowBlur = 0;
+              ctx.fillStyle = 'rgba(0,0,0,0.65)';
+              if (ctx.roundRect) {
+                ctx.beginPath();
+                ctx.roundRect(tx, ty, tw, th, 24);
+                ctx.fill();
+              } else {
+                ctx.rect(tx, ty, tw, th);
+                ctx.fill();
+              }
+              ctx.shadowBlur = 20;
+              ctx.fillStyle = '#ffffff';
+              ctx.fillText(combined, canvas.width/2, canvas.height - 55);
+            }
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+            state.photos[index].dataUrl = dataUrl;
+            state.photos[index].text = combined || photoText || ticket;
+            textInputs[index].value = state.photos[index].text;
+
+            vidContainer.remove();
+            renderCards();
+            setStatus(`✅ Photo ${index+1} captured`, 'success');
+            stream.getTracks().forEach(t => t.stop());
+          }, 800);
+        }).catch(err => {
+          setStatus('❌ Video error: ' + err.message, 'error');
+          stream.getTracks().forEach(t => t.stop());
+        });
+      } catch (error) {
+        if (error.name === 'NotAllowedError') {
+          setStatus('❌ Camera access denied. Tap the blue button.', 'error');
+          updatePermissionUI('denied', '⚠️ Camera Blocked', 'Tap to try again', 'red', 'Permission denied');
+        } else {
+          setStatus('❌ Camera error: ' + error.message, 'error');
+        }
+      }
+    }
+
+    // --- REMOVE PHOTO ---
+    function removePhoto(index) {
+      state.photos[index].dataUrl = null;
+      state.photos[index].text = textInputs[index].value || ticketInput.value || '';
+      renderCards();
+      setStatus(`🗑️ Photo ${index+1} removed`, 'info');
+    }
+
+    // --- CLEAR ALL ---
+    function clearAll() {
+      for (let i = 0; i < 2; i++) {
+        state.photos[i].dataUrl = null;
+        state.photos[i].text = ticketInput.value || '';
+        textInputs[i].value = state.photos[i].text;
+      }
+      renderCards();
+      setStatus('🗑️ All photos cleared', 'info');
+    }
+
+    // --- SEND WHATSAPP ---
+    function sendWhatsApp() {
+      syncTextFromInputs();
+      const photosWithData = state.photos.filter(p => p.dataUrl);
+      if (photosWithData.length === 0) {
+        setStatus('⚠️ No photos to send. Take at least one.', 'error');
+        return;
+      }
+
+      let message = '🏨 *Bed Decor Photos*%0a';
+      state.photos.forEach((p, idx) => {
+        if (p.dataUrl) {
+          const label = p.text || `Photo ${idx+1}`;
+          message += `📸 ${idx+1}: ${label}%0a`;
+        }
+      });
+      if (ticketInput.value) {
+        message += `%0a🎫 Ticket: ${ticketInput.value}`;
+      }
+      message += `%0a✨ Honeymoon bed decoration`;
+
+      const firstPhoto = photosWithData[0];
+      const encodedMsg = encodeURIComponent(message);
+
+      if (navigator.share && firstPhoto.dataUrl) {
+        fetch(firstPhoto.dataUrl)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], `bed_photo_1.jpg`, { type: 'image/jpeg' });
+            const shareData = {
+              title: 'Bed Decor Photos',
+              text: `Bed decoration: ${state.photos.map(p => p.text || '').filter(Boolean).join(', ')}`,
+              files: [file]
+            };
+            if (navigator.canShare && navigator.canShare(shareData)) {
+              navigator.share(shareData)
+                .then(() => setStatus('✅ Shared successfully', 'success'))
+                .catch(err => {
+                  if (err.name !== 'AbortError') setStatus('⚠️ Share cancelled', 'warning');
+                });
+            } else {
+              window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, '_blank');
+              setStatus('📤 WhatsApp opened (attach photos manually)', 'info');
+            }
+          })
+          .catch(() => {
+            window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, '_blank');
+            setStatus('📤 WhatsApp opened (attach photos manually)', 'info');
+          });
+      } else {
+        window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, '_blank');
+        setStatus('📤 WhatsApp opened (attach photos manually)', 'info');
+      }
+    }
+
+    function syncTextFromInputs() {
+      for (let i = 0; i < 2; i++) {
+        state.photos[i].text = textInputs[i].value || '';
+      }
+    }
+
+    // --- EVENT LISTENERS ---
+    document.getElementById('takePhoto0').addEventListener('click', () => takePhoto(0));
+    document.getElementById('takePhoto1').addEventListener('click', () => takePhoto(1));
+    document.getElementById('removePhoto0').addEventListener('click', () => removePhoto(0));
+    document.getElementById('removePhoto1').addEventListener('click', () => removePhoto(1));
+    document.getElementById('clearAllBtn').addEventListener('click', clearAll);
+    document.getElementById('sendWhatsAppBtn').addEventListener('click', sendWhatsApp);
+
+    textInputs.forEach((inp, idx) => {
+      inp.addEventListener('input', () => {
+        state.photos[idx].text = inp.value;
+        if (state.photos[idx].dataUrl) {
+          const overlay = previewOverlays[idx];
+          if (inp.value) {
+            overlay.textContent = inp.value;
+            overlay.classList.remove('hidden');
+          } else {
+            overlay.classList.add('hidden');
+          }
+        }
+      });
+    });
+
+    ticketInput.addEventListener('input', () => {
+      setStatus('🎫 Ticket updated (applies to new photos)', 'info');
+    });
+
+    // Polyfill roundRect
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        if (r > w/2) r = w/2;
+        if (r > h/2) r = h/2;
+        this.moveTo(x + r, y);
+        this.lineTo(x + w - r, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + r);
+        this.lineTo(x + w, y + h - r);
+        this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        this.lineTo(x + r, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - r);
+        this.lineTo(x, y + r);
+        this.quadraticCurveTo(x, y, x + r, y);
+        this.closePath();
+        return this;
+      };
+    }
+
+    // --- INIT ---
+    async function init() {
+      renderCards();
+      await checkPermissionOnLoad();
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>
