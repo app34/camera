@@ -1429,7 +1429,8 @@
       editingIndex: -1,
       videoStream: null,
       isVideoRunning: false,
-      isInitializing: false
+      isInitializing: false,
+      isSending: false
     };
 
     var mainPreviewImg = document.getElementById('mainPreviewImg');
@@ -1550,7 +1551,7 @@
       captureBtn.disabled = !state.cameraReady || allFilled || state.isInitializing;
       captureBtn.classList.toggle('has-photos', hasPhotos);
       retakeBtn.disabled = !hasPhotos || !state.cameraReady;
-      sendBtn.disabled = !hasPhotos || !state.cameraReady;
+      sendBtn.disabled = !hasPhotos || !state.cameraReady || state.isSending;
     }
 
     function updateCharCount() {
@@ -2146,6 +2147,9 @@
       setStatus('🔄 Photo ' + (slot+1) + ' removed', 'info');
     }
 
+    // ============================================================
+    // SEND WHATSAPP - SEND EACH PHOTO AS SEPARATE MESSAGE
+    // ============================================================
     function sendWhatsApp() {
       var photosWithData = state.photos.filter(function(p) { return p.dataUrl !== null; });
       if (photosWithData.length === 0) {
@@ -2153,52 +2157,92 @@
         return;
       }
 
+      state.isSending = true;
+      sendBtn.disabled = true;
+      setStatus('📤 Sending ' + photosWithData.length + ' photo(s)...', 'warning');
+
       var ticket = ticketInput.value || '';
-      var message = '';
-      if (ticket) {
-        message = '🏨 *' + ticket + '*%0a%0a';
-      } else {
-        message = '🏨 *Bed Decoration Photos*%0a%0a';
-      }
-
-      state.photos.forEach(function(p, idx) {
-        if (p.dataUrl) {
-          message += '📸 Photo ' + (idx+1) + '%0a';
+      
+      // Process each photo one by one
+      function sendPhoto(index) {
+        if (index >= photosWithData.length) {
+          // All photos sent
+          state.isSending = false;
+          sendBtn.disabled = false;
+          updateButtons();
+          setStatus('✅ All ' + photosWithData.length + ' photo(s) sent!', 'success');
+          return;
         }
-      });
 
-      var firstPhoto = photosWithData[0];
-      var encodedMsg = encodeURIComponent(message);
+        var photo = photosWithData[index];
+        var photoNumber = state.photos.indexOf(photo) + 1;
+        
+        var message = '';
+        if (ticket) {
+          message = '🏨 *' + ticket + '*%0a%0a';
+        } else {
+          message = '🏨 *Bed Decoration Photo ' + photoNumber + '*%0a%0a';
+        }
+        message += '📸 Photo ' + photoNumber;
 
-      if (navigator.share && firstPhoto.dataUrl) {
-        fetch(firstPhoto.dataUrl)
-          .then(function(res) { return res.blob(); })
-          .then(function(blob) {
-            var file = new File([blob], 'bed_photo_1.jpg', { type: 'image/jpeg' });
-            var shareData = {
-              title: ticket || 'Bed Decor',
-              text: ticket || 'Bed decoration photos',
-              files: [file]
-            };
-            if (navigator.canShare && navigator.canShare(shareData)) {
-              navigator.share(shareData)
-                .then(function() { setStatus('✅ Shared!', 'success'); })
-                .catch(function(err) {
-                  if (err.name !== 'AbortError') setStatus('⚠️ Cancelled', 'warning');
-                });
-            } else {
+        var encodedMsg = encodeURIComponent(message);
+
+        // Use Web Share API if available
+        if (navigator.share && photo.dataUrl) {
+          fetch(photo.dataUrl)
+            .then(function(res) { return res.blob(); })
+            .then(function(blob) {
+              var file = new File([blob], 'bed_photo_' + photoNumber + '.jpg', { type: 'image/jpeg' });
+              var shareData = {
+                title: ticket || 'Bed Decor',
+                text: ticket || 'Bed decoration photo ' + photoNumber,
+                files: [file]
+              };
+              if (navigator.canShare && navigator.canShare(shareData)) {
+                navigator.share(shareData)
+                  .then(function() {
+                    setStatus('📤 Photo ' + photoNumber + ' sent (' + (index+1) + '/' + photosWithData.length + ')', 'success');
+                    // Send next photo after delay
+                    setTimeout(function() { sendPhoto(index + 1); }, 800);
+                  })
+                  .catch(function(err) {
+                    if (err.name !== 'AbortError') {
+                      setStatus('⚠️ Error sending photo ' + photoNumber, 'error');
+                      state.isSending = false;
+                      sendBtn.disabled = false;
+                      updateButtons();
+                    } else {
+                      // User cancelled, stop sending
+                      state.isSending = false;
+                      sendBtn.disabled = false;
+                      updateButtons();
+                      setStatus('⚠️ Cancelled', 'warning');
+                    }
+                  });
+              } else {
+                // Fallback: Open WhatsApp with text
+                window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
+                setStatus('📤 WhatsApp opened for photo ' + photoNumber, 'info');
+                // Continue to next after delay
+                setTimeout(function() { sendPhoto(index + 1); }, 1200);
+              }
+            })
+            .catch(function() {
+              // Fallback: Open WhatsApp with text
               window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-              setStatus('📤 WhatsApp opened', 'info');
-            }
-          })
-          .catch(function() {
-            window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-            setStatus('📤 WhatsApp opened', 'info');
-          });
-      } else {
-        window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-        setStatus('📤 WhatsApp opened', 'info');
+              setStatus('📤 WhatsApp opened for photo ' + photoNumber, 'info');
+              setTimeout(function() { sendPhoto(index + 1); }, 1200);
+            });
+        } else {
+          // Fallback: Open WhatsApp with text
+          window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
+          setStatus('📤 WhatsApp opened for photo ' + photoNumber, 'info');
+          setTimeout(function() { sendPhoto(index + 1); }, 1200);
+        }
       }
+
+      // Start sending first photo
+      sendPhoto(0);
     }
 
     thumbnails.forEach(function(thumb, idx) {
