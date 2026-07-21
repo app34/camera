@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui">
   <title>BedDecor · Camera</title>
   
-  <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#0f1625">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,10 +12,7 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="mobile-web-app-capable" content="yes">
   
-  <!-- Manifest -->
   <link rel="manifest" href="manifest.json">
-  
-  <!-- Apple Touch Icon -->
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   
   <style>
@@ -2113,118 +2109,116 @@
     }
 
     // ============================================================
-    // SEND WHATSAPP - FIXED FOR 2 PHOTOS
+    // SEND WHATSAPP - FIXED: SEND ALL PHOTOS IN ONE SHARE
     // ============================================================
     function sendWhatsApp() {
       // Get all photos with data
-      var photosToSend = [];
+      var photosWithData = [];
       for (var i = 0; i < state.photos.length; i++) {
         if (state.photos[i].dataUrl) {
-          photosToSend.push({
+          photosWithData.push({
             index: i,
             dataUrl: state.photos[i].dataUrl
           });
         }
       }
 
-      if (photosToSend.length === 0) {
+      if (photosWithData.length === 0) {
         setStatus('⚠️ No photos to send', 'error');
         return;
       }
 
       state.isSending = true;
       sendBtn.disabled = true;
-      setStatus('📤 Preparing ' + photosToSend.length + ' photo(s)...', 'warning');
+      setStatus('📤 Preparing ' + photosWithData.length + ' photo(s)...', 'warning');
 
       var ticket = ticketInput.value || '';
-      var currentIndex = 0;
-      var totalPhotos = photosToSend.length;
+      var totalPhotos = photosWithData.length;
 
-      function sendNextPhoto() {
-        if (currentIndex >= totalPhotos) {
-          state.isSending = false;
-          sendBtn.disabled = false;
-          updateButtons();
-          setStatus('✅ All ' + totalPhotos + ' photo(s) sent!', 'success');
-          return;
-        }
-
-        var photo = photosToSend[currentIndex];
-        var photoNumber = photo.index + 1;
-        var current = currentIndex + 1;
-
-        // Build message for this photo
-        var messageText = '';
-        if (ticket) {
-          messageText = ticket + ' (Photo ' + current + ' of ' + totalPhotos + ')';
-        } else {
-          messageText = 'Bed Decoration Photo ' + current + ' of ' + totalPhotos;
-        }
-        
-        var message = '🏨 *' + messageText + '*%0a%0a📸 Photo ' + current + ' of ' + totalPhotos;
-        var encodedMsg = encodeURIComponent(message);
-
-        setStatus('📤 Sending photo ' + current + ' of ' + totalPhotos + '...', 'warning');
-
-        // Try Web Share API first (sends ONE photo at a time)
-        if (navigator.share && photo.dataUrl) {
-          fetch(photo.dataUrl)
-            .then(function(res) { return res.blob(); })
-            .then(function(blob) {
-              var file = new File([blob], 'bed_photo_' + photoNumber + '.jpg', { type: 'image/jpeg' });
-              var shareData = {
-                title: ticket || 'Bed Decor',
-                text: messageText,
-                files: [file]
-              };
-              
-              if (navigator.canShare && navigator.canShare(shareData)) {
-                navigator.share(shareData)
-                  .then(function() {
-                    currentIndex++;
-                    // Delay before next photo
-                    setTimeout(sendNextPhoto, 1200);
-                  })
-                  .catch(function(err) {
-                    if (err.name !== 'AbortError') {
-                      setStatus('⚠️ Error sending photo ' + current, 'error');
-                      state.isSending = false;
-                      sendBtn.disabled = false;
-                      updateButtons();
-                    } else {
-                      // User cancelled - stop
-                      state.isSending = false;
-                      sendBtn.disabled = false;
-                      updateButtons();
-                      setStatus('⚠️ Cancelled', 'warning');
-                    }
-                  });
-              } else {
-                // Fallback: Open WhatsApp with text only (user attaches photo manually)
-                window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-                setStatus('📤 WhatsApp opened for photo ' + current, 'info');
-                currentIndex++;
-                setTimeout(sendNextPhoto, 1500);
-              }
-            })
-            .catch(function() {
-              // Fallback: Open WhatsApp with text
-              window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-              setStatus('📤 WhatsApp opened for photo ' + current, 'info');
-              currentIndex++;
-              setTimeout(sendNextPhoto, 1500);
-            });
-        } else {
-          // No share API - open WhatsApp with text
-          window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
-          setStatus('📤 WhatsApp opened for photo ' + current, 'info');
-          currentIndex++;
-          setTimeout(sendNextPhoto, 1500);
-        }
+      // Build message text
+      var messageText = '';
+      if (ticket) {
+        messageText = ticket + ' (' + totalPhotos + ' photos)';
+      } else {
+        messageText = 'Bed Decoration Photos (' + totalPhotos + ' photos)';
       }
 
-      // Start sending
-      sendNextPhoto();
+      // Create a message for each photo
+      var fullMessage = '🏨 *' + messageText + '*%0a%0a';
+      photosWithData.forEach(function(photo, idx) {
+        fullMessage += '📸 Photo ' + (idx + 1) + ' of ' + totalPhotos + '%0a';
+      });
+
+      var encodedMsg = encodeURIComponent(fullMessage);
+
+      // Try Web Share API with multiple files (BEST approach - sends all photos at once)
+      if (navigator.share) {
+        // Convert all photos to blobs
+        var blobPromises = photosWithData.map(function(photo) {
+          return fetch(photo.dataUrl).then(function(res) { return res.blob(); });
+        });
+
+        Promise.all(blobPromises)
+          .then(function(blobs) {
+            // Create files for each photo
+            var files = blobs.map(function(blob, idx) {
+              return new File([blob], 'bed_photo_' + (idx + 1) + '.jpg', { type: 'image/jpeg' });
+            });
+
+            var shareData = {
+              title: ticket || 'Bed Decor',
+              text: ticket || 'Bed decoration photos',
+              files: files
+            };
+
+            // Check if multi-file share is supported
+            if (navigator.canShare && navigator.canShare(shareData)) {
+              // Send ALL photos at once
+              navigator.share(shareData)
+                .then(function() {
+                  state.isSending = false;
+                  sendBtn.disabled = false;
+                  updateButtons();
+                  setStatus('✅ ' + totalPhotos + ' photo(s) shared successfully!', 'success');
+                })
+                .catch(function(err) {
+                  if (err.name !== 'AbortError') {
+                    setStatus('⚠️ Error sharing photos', 'error');
+                    state.isSending = false;
+                    sendBtn.disabled = false;
+                    updateButtons();
+                  } else {
+                    state.isSending = false;
+                    sendBtn.disabled = false;
+                    updateButtons();
+                    setStatus('⚠️ Cancelled', 'warning');
+                  }
+                });
+            } else {
+              // Fallback: Open WhatsApp with text, user attaches photos manually
+              window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
+              setStatus('📤 WhatsApp opened - attach photos manually', 'info');
+              state.isSending = false;
+              sendBtn.disabled = false;
+              updateButtons();
+            }
+          })
+          .catch(function() {
+            // Fallback: Open WhatsApp with text
+            window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
+            setStatus('📤 WhatsApp opened - attach photos manually', 'info');
+            state.isSending = false;
+            sendBtn.disabled = false;
+            updateButtons();
+          });
+      } else {
+        // No share API available - open WhatsApp with text
+        window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
+        setStatus('📤 WhatsApp opened - attach photos manually', 'info');
+        state.isSending = false;
+        sendBtn.disabled = false;
+        updateButtons();
+      }
     }
 
     // ============================================================
