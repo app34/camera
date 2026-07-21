@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>BedDecor · Honeymoon Cam</title>
+  <title>BedDecor · Camera</title>
   <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQmVkRGVjb3IiLCJzaG9ydF9uYW1lIjoiQmVkRGVjb3IiLCJkZXNjcmlwdGlvbiI6IkJlZCBEZWNvcmF0aW9uIFBob3RvIENhbSIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwic3RhcnRfdXJsIjoiLiIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWwsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA1MTIgNTEyJz48cmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzYwJyBmaWxsPScjZmY1Njc4Jy8+PHRleHQgeD0nOTAnIHk9JzM1MCcgZm9udC1zaXplPScyODAnIGZpbGw9J3doaXRlJyBmb250LWZhbWlseT0nc2Fucy1zZXJpZic+8J+SvTwvdGV4dD48L3N2Zz4iLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
   <style>
     /* === RESET & BASE === */
@@ -49,11 +49,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 4px 14px 4px;
+      padding: 0 4px 12px 4px;
       position: relative;
       z-index: 1;
-      flex-wrap: wrap;
-      gap: 8px;
     }
     .header-left {
       display: flex;
@@ -61,7 +59,7 @@
       gap: 10px;
     }
     .header-left .logo {
-      font-size: 1.7rem;
+      font-size: 1.5rem;
       font-weight: 700;
       background: linear-gradient(135deg, #ff8aa3, #ff5e7c);
       -webkit-background-clip: text;
@@ -70,73 +68,83 @@
       letter-spacing: -0.5px;
     }
     .header-left .logo-icon {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       -webkit-text-fill-color: initial;
     }
     .header-left .sub {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       font-weight: 600;
       color: #7a8db5;
       background: #1a2338;
-      padding: 3px 12px;
+      padding: 2px 12px;
       border-radius: 20px;
       border: 1px solid #2d3d60;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       -webkit-text-fill-color: #7a8db5;
     }
-    /* === PERMISSION BUTTON - BIG & OBVIOUS === */
+    .header-right .badge {
+      background: #1a2338;
+      border: 1px solid #2d3d60;
+      border-radius: 30px;
+      padding: 4px 14px;
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: #b6cbf5;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .header-right .badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      display: inline-block;
+      animation: pulse-dot 2s infinite;
+    }
+    .header-right .badge .dot.off {
+      background: #f87171;
+      animation: none;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    /* === PERMISSION BUTTON === */
     .permission-section {
       position: relative;
       z-index: 2;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .permission-btn {
       width: 100%;
-      padding: 18px 24px;
+      padding: 12px 20px;
       border: none;
-      border-radius: 30px;
-      font-size: 1.2rem;
+      border-radius: 28px;
+      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
-      box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+      gap: 12px;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.3);
       touch-action: manipulation;
-      letter-spacing: 0.5px;
-      position: relative;
+      letter-spacing: 0.3px;
     }
     .permission-btn:active {
-      transform: translateY(4px);
+      transform: translateY(3px);
       box-shadow: 0 2px 0 rgba(0,0,0,0.3);
     }
     .permission-btn:disabled {
       opacity: 0.6;
       transform: translateY(2px);
-      box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+      box-shadow: 0 3px 0 rgba(0,0,0,0.2);
       cursor: not-allowed;
     }
-    .permission-btn .btn-icon {
-      font-size: 2rem;
-    }
-    .permission-btn .btn-text {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      line-height: 1.2;
-    }
-    .permission-btn .btn-text .main {
-      font-size: 1.1rem;
-    }
-    .permission-btn .btn-text .sub {
-      font-size: 0.75rem;
-      font-weight: 400;
-      opacity: 0.85;
-    }
-    /* Different states */
+    .permission-btn .btn-icon { font-size: 1.4rem; }
     .permission-btn.request {
       background: linear-gradient(135deg, #3b82f6, #2563eb);
       color: #fff;
@@ -160,26 +168,26 @@
       border: 2px solid #4b5563;
     }
     @keyframes pulse-blue {
-      0%, 100% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 0 0 rgba(59,130,246,0.4); }
-      50% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 0 15px rgba(59,130,246,0); }
+      0%, 100% { box-shadow: 0 5px 0 rgba(0,0,0,0.3), 0 0 0 0 rgba(59,130,246,0.4); }
+      50% { box-shadow: 0 5px 0 rgba(0,0,0,0.3), 0 0 0 12px rgba(59,130,246,0); }
     }
     @keyframes pulse-red {
-      0%, 100% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 0 0 rgba(239,68,68,0.4); }
-      50% { box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 0 15px rgba(239,68,68,0); }
+      0%, 100% { box-shadow: 0 5px 0 rgba(0,0,0,0.3), 0 0 0 0 rgba(239,68,68,0.4); }
+      50% { box-shadow: 0 5px 0 rgba(0,0,0,0.3), 0 0 0 12px rgba(239,68,68,0); }
     }
     .permission-status {
       text-align: center;
-      margin-top: 8px;
-      font-size: 0.8rem;
+      margin-top: 6px;
+      font-size: 0.7rem;
       color: #6a7ea8;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
     }
     .permission-status .dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       display: inline-block;
       flex-shrink: 0;
@@ -191,37 +199,33 @@
     /* === TICKET BOX === */
     .ticket-box {
       background: #141d31;
-      border-radius: 28px;
-      padding: 12px 16px 14px;
-      margin-bottom: 18px;
+      border-radius: 24px;
+      padding: 10px 14px 12px;
+      margin-bottom: 14px;
       border: 1px solid #26334f;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
       position: relative;
       z-index: 1;
-      transition: border-color 0.2s;
-    }
-    .ticket-box:focus-within {
-      border-color: #ff5e7c;
     }
     .ticket-box .label-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 6px;
+      gap: 8px;
+      margin-bottom: 4px;
     }
     .ticket-box .label-row .tag {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 600;
       color: #8a9fc9;
       background: #1f2a44;
-      padding: 2px 14px;
+      padding: 2px 12px;
       border-radius: 30px;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       border: 1px solid #2f4065;
     }
     .ticket-box .label-row .hint {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       color: #5f739b;
       margin-left: auto;
       display: flex;
@@ -237,14 +241,13 @@
       width: 100%;
       background: #0a111f;
       border: none;
-      border-radius: 24px;
-      padding: 12px 18px;
-      font-size: 1rem;
+      border-radius: 20px;
+      padding: 10px 16px;
+      font-size: 0.95rem;
       font-weight: 500;
       color: #eef4ff;
       outline: none;
       transition: 0.2s;
-      letter-spacing: 0.2px;
     }
     .ticket-box input::placeholder {
       color: #3d517a;
@@ -253,242 +256,337 @@
     .ticket-box input:focus {
       box-shadow: 0 0 0 2px rgba(255,94,124,0.2);
     }
-    /* === PHOTO CARDS === */
-    .photo-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      margin: 6px 0 20px;
+    /* === MAIN CAMERA PREVIEW === */
+    .camera-container {
       position: relative;
       z-index: 1;
+      margin-bottom: 14px;
     }
-    .photo-card {
-      background: #0c1322;
-      border-radius: 28px;
-      padding: 14px;
-      border: 1px solid #1f2a44;
-      box-shadow: 0 4px 0 #060a12;
-      transition: all 0.2s ease;
-    }
-    .photo-card .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      padding: 0 2px;
-    }
-    .photo-card .card-header .index-badge {
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: #6a7ea8;
-      background: #182136;
-      padding: 2px 14px;
-      border-radius: 20px;
-      border: 1px solid #2a3857;
-    }
-    .photo-card .card-header .status-indicator {
-      font-size: 0.6rem;
-      color: #4a5f89;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .photo-card .card-header .status-indicator .fill {
-      color: #4ade80;
-    }
-    .photo-card .card-header .status-indicator .fill.empty {
-      color: #6a7ea8;
-    }
-    .photo-card .preview {
+    .camera-preview {
       background: #080e1a;
-      border-radius: 20px;
-      min-height: 160px;
+      border-radius: 24px;
+      min-height: 320px;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
-      border: 1px solid #1a2642;
+      border: 2px solid #1a2642;
       transition: all 0.3s ease;
     }
-    .photo-card .preview.has-image {
+    .camera-preview.has-image {
       border-color: #2d4068;
     }
-    .photo-card .preview img {
+    .camera-preview img {
       width: 100%;
       height: auto;
-      max-height: 260px;
+      max-height: 400px;
       object-fit: contain;
       display: block;
-      border-radius: 16px;
     }
-    .photo-card .preview .placeholder {
+    .camera-preview .placeholder {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-      padding: 28px 12px;
+      gap: 10px;
+      padding: 40px 20px;
       color: #4a5f89;
     }
-    .photo-card .preview .placeholder .big-icon {
-      font-size: 2.8rem;
-      opacity: 0.4;
+    .camera-preview .placeholder .big-icon {
+      font-size: 4rem;
+      opacity: 0.3;
     }
-    .photo-card .preview .placeholder .main-text {
-      font-size: 0.85rem;
+    .camera-preview .placeholder .main-text {
+      font-size: 1rem;
       font-weight: 500;
       color: #6a80ad;
     }
-    .photo-card .preview .placeholder .sub-text {
-      font-size: 0.65rem;
+    .camera-preview .placeholder .sub-text {
+      font-size: 0.75rem;
       color: #3d517a;
     }
-    .photo-card .preview .text-overlay-preview {
+    .camera-preview .text-overlay-display {
       position: absolute;
-      bottom: 16px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(8px);
-      padding: 6px 20px;
-      border-radius: 30px;
-      font-size: 0.8rem;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(10px);
+      padding: 8px 24px;
+      border-radius: 40px;
+      font-size: 0.9rem;
       font-weight: 600;
       color: #fff;
       white-space: nowrap;
-      max-width: 90%;
+      max-width: 92%;
       overflow: hidden;
       text-overflow: ellipsis;
       border: 1px solid rgba(255,255,255,0.08);
       pointer-events: none;
     }
-    .photo-card .preview .text-overlay-preview.hidden {
+    .camera-preview .text-overlay-display.hidden {
       display: none;
     }
-    .photo-card .action-row {
+    /* === CAMERA CONTROLS === */
+    .camera-controls {
       display: flex;
-      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+      justify-content: center;
       align-items: center;
-      gap: 8px;
-      margin-top: 12px;
     }
-    .photo-card .action-row .text-input {
-      flex: 2 1 120px;
-      background: #0a111f;
-      border: 1px solid #1f2a44;
-      border-radius: 30px;
-      padding: 9px 16px;
-      font-size: 0.8rem;
-      font-weight: 450;
-      color: #eef4ff;
-      outline: none;
-      transition: 0.2s;
-      min-width: 80px;
-    }
-    .photo-card .action-row .text-input:focus {
-      border-color: #ff5e7c;
-      box-shadow: 0 0 0 2px rgba(255,94,124,0.15);
-    }
-    .photo-card .action-row .text-input::placeholder {
-      color: #3d517a;
-    }
-    .btn {
-      border: none;
-      border-radius: 30px;
-      padding: 9px 16px;
-      font-weight: 600;
-      font-size: 0.75rem;
-      display: inline-flex;
+    .btn-capture {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 4px solid #ff5e7c;
+      background: rgba(255,94,124,0.15);
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      box-shadow: 0 0 30px rgba(255,94,124,0.2);
+      touch-action: manipulation;
+      flex-shrink: 0;
+    }
+    .btn-capture:active {
+      transform: scale(0.92);
+      background: rgba(255,94,124,0.3);
+    }
+    .btn-capture:disabled {
+      opacity: 0.4;
+      transform: scale(0.95);
+      cursor: not-allowed;
+    }
+    .btn-capture .inner-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #ff5e7c;
+      transition: all 0.2s ease;
+    }
+    .btn-capture:active .inner-circle {
+      transform: scale(0.85);
+    }
+    .btn-capture.has-photos {
+      border-color: #4ade80;
+      box-shadow: 0 0 30px rgba(74,222,128,0.2);
+    }
+    .btn-capture.has-photos .inner-circle {
+      background: #4ade80;
+    }
+    .btn-action {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.8rem;
       cursor: pointer;
       transition: all 0.12s ease;
       touch-action: manipulation;
-      letter-spacing: 0.2px;
-      white-space: nowrap;
-    }
-    .btn:active {
-      transform: scale(0.94);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #ff5e7c, #e94a6a);
-      color: #fff;
-      box-shadow: 0 4px 0 #a33b4f, 0 2px 8px rgba(255,94,124,0.25);
-      border: 1px solid #ff7a94;
-    }
-    .btn-primary:active {
-      box-shadow: 0 1px 0 #a33b4f;
-      transform: translateY(3px) scale(0.96);
-    }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      transform: translateY(2px);
-      box-shadow: 0 2px 0 #a33b4f;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
+      letter-spacing: 0.3px;
       background: #1f2a44;
       color: #b0c5ef;
       border: 1px solid #32456b;
       box-shadow: 0 4px 0 #0c1322;
+      flex: 1;
     }
-    .btn-secondary:active {
+    .btn-action:active {
+      transform: translateY(3px);
       box-shadow: 0 1px 0 #0c1322;
-      transform: translateY(3px) scale(0.96);
     }
-    .btn-danger {
-      background: #a83242;
+    .btn-action:disabled {
+      opacity: 0.4;
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #0c1322;
+      cursor: not-allowed;
+    }
+    .btn-action.primary {
+      background: linear-gradient(135deg, #ff5e7c, #e94a6a);
       color: #fff;
-      border: 1px solid #c94a5a;
-      box-shadow: 0 4px 0 #5e1d28;
+      border: 1px solid #ff7a94;
+      box-shadow: 0 4px 0 #a33b4f;
     }
-    .btn-danger:active {
-      box-shadow: 0 1px 0 #5e1d28;
-      transform: translateY(3px) scale(0.96);
+    .btn-action.primary:active {
+      box-shadow: 0 1px 0 #a33b4f;
     }
-    .btn-whatsapp {
+    .btn-action.whatsapp {
       background: #25D366;
       color: #0a1a10;
       border: 1px solid #4ae08a;
       box-shadow: 0 4px 0 #158a45;
       font-weight: 700;
     }
-    .btn-whatsapp:active {
+    .btn-action.whatsapp:active {
       box-shadow: 0 1px 0 #158a45;
-      transform: translateY(3px) scale(0.96);
     }
-    .btn-whatsapp:disabled {
-      opacity: 0.5;
-      transform: translateY(2px);
-      box-shadow: 0 2px 0 #158a45;
-      cursor: not-allowed;
+    .btn-action.danger {
+      background: #a83242;
+      color: #fff;
+      border: 1px solid #c94a5a;
+      box-shadow: 0 4px 0 #5e1d28;
     }
-    .btn-icon {
-      padding: 9px 12px;
-      font-size: 1rem;
+    .btn-action.danger:active {
+      box-shadow: 0 1px 0 #5e1d28;
     }
-    .global-actions {
+    /* === THUMBNAILS ROW === */
+    .thumbnails-row {
       display: flex;
-      gap: 10px;
-      margin: 6px 0 12px;
+      gap: 12px;
+      margin-top: 14px;
+      justify-content: center;
       position: relative;
       z-index: 1;
     }
-    .global-actions .btn {
-      flex: 1;
-      padding: 12px 10px;
-      font-size: 0.85rem;
+    .thumbnail {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      background: #0a111f;
+      border: 2px solid #1a2642;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
     }
+    .thumbnail:active {
+      transform: scale(0.92);
+    }
+    .thumbnail.active {
+      border-color: #ff5e7c;
+      box-shadow: 0 0 20px rgba(255,94,124,0.2);
+    }
+    .thumbnail.has-image {
+      border-color: #4ade80;
+    }
+    .thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .thumbnail .thumb-placeholder {
+      font-size: 1.5rem;
+      opacity: 0.3;
+      color: #4a5f89;
+    }
+    .thumbnail .thumb-number {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .thumbnail .thumb-retake {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      font-size: 0.5rem;
+      font-weight: 600;
+      color: #f87171;
+      padding: 2px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(248,113,113,0.2);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .thumbnail:hover .thumb-retake,
+    .thumbnail:active .thumb-retake {
+      opacity: 1;
+    }
+    /* === FULLSCREEN VIEW MODAL === */
+    .fullscreen-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(20px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+    .fullscreen-modal.active {
+      display: flex;
+    }
+    .fullscreen-modal .modal-content {
+      max-width: 500px;
+      width: 100%;
+      position: relative;
+    }
+    .fullscreen-modal .modal-content img {
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 20px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+    }
+    .fullscreen-modal .modal-content .modal-text {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #eef4ff;
+      background: rgba(0,0,0,0.5);
+      padding: 10px 20px;
+      border-radius: 30px;
+      backdrop-filter: blur(8px);
+    }
+    .fullscreen-modal .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fullscreen-modal .modal-close:active {
+      transform: scale(0.9);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    /* === STATUS === */
     .status-bar {
       background: #0c1322;
       border-radius: 40px;
-      padding: 10px 18px;
-      font-size: 0.75rem;
+      padding: 8px 16px;
+      font-size: 0.7rem;
       color: #8a9fc9;
       text-align: center;
       border: 1px solid #1a2642;
-      margin-top: 6px;
+      margin-top: 10px;
       position: relative;
       z-index: 1;
       display: flex;
@@ -496,11 +594,11 @@
       justify-content: center;
       gap: 8px;
       font-weight: 450;
-      min-height: 44px;
+      min-height: 38px;
     }
     .status-bar .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       display: inline-block;
       flex-shrink: 0;
@@ -510,30 +608,29 @@
     .status-bar .status-dot.red { background: #f87171; }
     .status-bar .status-dot.gray { background: #4a5f89; }
     .footer {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       color: #34466b;
       text-align: center;
-      margin-top: 14px;
-      padding-top: 12px;
+      margin-top: 10px;
+      padding-top: 10px;
       border-top: 1px solid #141d31;
       letter-spacing: 0.3px;
       position: relative;
       z-index: 1;
     }
+    /* === RESPONSIVE === */
     @media (max-width: 420px) {
       .app { padding: 14px 10px 18px; border-radius: 32px; }
-      .header-left .logo { font-size: 1.4rem; }
-      .header-left .sub { font-size: 0.55rem; padding: 2px 10px; }
-      .photo-card .preview { min-height: 130px; }
-      .btn { font-size: 0.7rem; padding: 8px 12px; }
-      .global-actions .btn { font-size: 0.75rem; padding: 10px 8px; }
-      .permission-btn { padding: 14px 18px; font-size: 1rem; }
-      .permission-btn .btn-icon { font-size: 1.6rem; }
-      .permission-btn .btn-text .main { font-size: 0.95rem; }
+      .camera-preview { min-height: 240px; }
+      .camera-preview .placeholder .big-icon { font-size: 3rem; }
+      .thumbnail { width: 64px; height: 64px; }
+      .btn-capture { width: 60px; height: 60px; }
+      .btn-capture .inner-circle { width: 46px; height: 46px; }
     }
     @media (max-width: 360px) {
-      .photo-card .action-row .text-input { flex: 1 1 100%; }
-      .photo-card .action-row .btn { flex: 1; }
+      .thumbnail { width: 54px; height: 54px; }
+      .btn-capture { width: 54px; height: 54px; }
+      .btn-capture .inner-circle { width: 42px; height: 42px; }
     }
   </style>
 </head>
@@ -545,96 +642,91 @@
       <span class="logo"><span class="logo-icon">📸</span> Bed<span style="color:#ff5e7c; -webkit-text-fill-color:#ff5e7c;">Decor</span></span>
       <span class="sub">✦ Honeymoon</span>
     </div>
-  </div>
-
-  <!-- === BIG PERMISSION BUTTON - TRIGGERS BROWSER POPUP === -->
-  <div class="permission-section">
-    <button class="permission-btn request" id="permissionBtn">
-      <span class="btn-icon">📷</span>
-      <span class="btn-text">
-        <span class="main" id="permMain">🔴 Tap to Allow Camera</span>
-        <span class="sub" id="permSub">Browser will ask for permission</span>
-      </span>
-    </button>
-    <div class="permission-status" id="permStatus">
-      <span class="dot gray" id="permDot"></span>
-      <span id="permLabel">Tap the button above to enable camera</span>
+    <div class="header-right">
+      <div class="badge" id="cameraBadge">
+        <span class="dot" id="cameraDot"></span>
+        <span id="cameraStatusText">Init</span>
+      </div>
     </div>
   </div>
 
-  <!-- TICKET BOX -->
+  <!-- PERMISSION BUTTON -->
+  <div class="permission-section">
+    <button class="permission-btn request" id="permissionBtn">
+      <span class="btn-icon">📷</span>
+      <span id="permMain">Tap to Allow Camera</span>
+    </button>
+    <div class="permission-status" id="permStatus">
+      <span class="dot gray" id="permDot"></span>
+      <span id="permLabel">Camera access required</span>
+    </div>
+  </div>
+
+  <!-- TICKET BOX (Single text for both photos) -->
   <div class="ticket-box">
     <div class="label-row">
       <span class="tag">🎫 Ticket</span>
       <span class="hint">
         <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-        auto-attach
+        applies to all photos
       </span>
     </div>
     <input type="text" id="ticketText" placeholder="Room number &amp; message..." value="407 · HAPPY HONEYMOON">
   </div>
 
-  <!-- PHOTO GRID -->
-  <div class="photo-grid">
-    <!-- Card 1 -->
-    <div class="photo-card" data-index="0">
-      <div class="card-header">
-        <span class="index-badge">📷 01</span>
-        <span class="status-indicator" id="statusIndicator0"><span class="fill empty">●</span> empty</span>
+  <!-- MAIN CAMERA PREVIEW -->
+  <div class="camera-container">
+    <div class="camera-preview" id="cameraPreview">
+      <div class="placeholder" id="mainPlaceholder">
+        <span class="big-icon">📷</span>
+        <span class="main-text">No photo yet</span>
+        <span class="sub-text">Tap the capture button below</span>
       </div>
-      <div class="preview" id="preview0">
-        <div class="placeholder" id="placeholder0">
-          <span class="big-icon">🖼️</span>
-          <span class="main-text">No photo yet</span>
-          <span class="sub-text">tap «Take» to capture</span>
-        </div>
-        <img id="img0" style="display:none;" alt="Photo 1">
-        <div class="text-overlay-preview hidden" id="textOverlayPreview0"></div>
-      </div>
-      <div class="action-row">
-        <input class="text-input" id="textOverlay0" placeholder="Text overlay" value="407 · HAPPY HONEYMOON">
-        <button class="btn btn-primary" id="takePhoto0">📸 Take</button>
-        <button class="btn btn-secondary btn-icon" id="removePhoto0">✖</button>
-      </div>
+      <img id="mainPreviewImg" style="display:none;" alt="Preview">
+      <div class="text-overlay-display hidden" id="mainTextOverlay"></div>
     </div>
 
-    <!-- Card 2 -->
-    <div class="photo-card" data-index="1">
-      <div class="card-header">
-        <span class="index-badge">📷 02</span>
-        <span class="status-indicator" id="statusIndicator1"><span class="fill empty">●</span> empty</span>
-      </div>
-      <div class="preview" id="preview1">
-        <div class="placeholder" id="placeholder1">
-          <span class="big-icon">🖼️</span>
-          <span class="main-text">No photo yet</span>
-          <span class="sub-text">tap «Take» to capture</span>
-        </div>
-        <img id="img1" style="display:none;" alt="Photo 2">
-        <div class="text-overlay-preview hidden" id="textOverlayPreview1"></div>
-      </div>
-      <div class="action-row">
-        <input class="text-input" id="textOverlay1" placeholder="Text overlay" value="506 · HAPPY HONEYMOON">
-        <button class="btn btn-primary" id="takePhoto1">📸 Take</button>
-        <button class="btn btn-secondary btn-icon" id="removePhoto1">✖</button>
-      </div>
+    <!-- CAMERA CONTROLS -->
+    <div class="camera-controls">
+      <button class="btn-action" id="retakeBtn" disabled>🔄 Retake</button>
+      <button class="btn-capture" id="captureBtn">
+        <div class="inner-circle"></div>
+      </button>
+      <button class="btn-action whatsapp" id="sendBtn" disabled>💬 Send</button>
     </div>
   </div>
 
-  <!-- GLOBAL ACTIONS -->
-  <div class="global-actions">
-    <button class="btn btn-whatsapp" id="sendWhatsAppBtn">💬 WhatsApp</button>
-    <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+  <!-- THUMBNAILS -->
+  <div class="thumbnails-row">
+    <div class="thumbnail" id="thumb0" data-index="0">
+      <span class="thumb-placeholder">📷</span>
+      <span class="thumb-number">1</span>
+      <span class="thumb-retake">✖ retake</span>
+    </div>
+    <div class="thumbnail" id="thumb1" data-index="1">
+      <span class="thumb-placeholder">📷</span>
+      <span class="thumb-number">2</span>
+      <span class="thumb-retake">✖ retake</span>
+    </div>
   </div>
 
-  <!-- STATUS BAR -->
+  <!-- STATUS -->
   <div class="status-bar" id="statusMsg">
     <span class="status-dot gray" id="statusDot"></span>
-    <span id="statusText">Tap the blue button to enable camera</span>
+    <span id="statusText">Ready to capture</span>
   </div>
 
   <!-- FOOTER -->
-  <div class="footer">tap text to edit · ticket auto-attaches to every photo</div>
+  <div class="footer">tap thumbnail to view full size · ticket text auto-attaches</div>
+</div>
+
+<!-- FULLSCREEN VIEW MODAL -->
+<div class="fullscreen-modal" id="fullscreenModal">
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose">✕</button>
+    <img id="modalImg" src="" alt="Full view">
+    <div class="modal-text" id="modalText"></div>
+  </div>
 </div>
 
 <script>
@@ -644,83 +736,39 @@
     // --- STATE ---
     const state = {
       photos: [
-        { dataUrl: null, text: "407 · HAPPY HONEYMOON" },
-        { dataUrl: null, text: "506 · HAPPY HONEYMOON" }
+        { dataUrl: null, text: "" },
+        { dataUrl: null, text: "" }
       ],
-      cameraReady: false
+      cameraReady: false,
+      selectedIndex: 0, // which slot is currently selected for capture
     };
 
     // --- DOM REFS ---
-    const imgEls = [document.getElementById('img0'), document.getElementById('img1')];
-    const placeholders = [document.getElementById('placeholder0'), document.getElementById('placeholder1')];
-    const textInputs = [document.getElementById('textOverlay0'), document.getElementById('textOverlay1')];
-    const previewOverlays = [document.getElementById('textOverlayPreview0'), document.getElementById('textOverlayPreview1')];
-    const statusIndicators = [document.getElementById('statusIndicator0'), document.getElementById('statusIndicator1')];
+    const mainPreviewImg = document.getElementById('mainPreviewImg');
+    const mainPlaceholder = document.getElementById('mainPlaceholder');
+    const mainTextOverlay = document.getElementById('mainTextOverlay');
+    const cameraPreview = document.getElementById('cameraPreview');
+    const thumbnails = [document.getElementById('thumb0'), document.getElementById('thumb1')];
     const ticketInput = document.getElementById('ticketText');
     const statusText = document.getElementById('statusText');
     const statusDot = document.getElementById('statusDot');
-    const takeBtns = [document.getElementById('takePhoto0'), document.getElementById('takePhoto1')];
-    const sendBtn = document.getElementById('sendWhatsAppBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const modal = document.getElementById('fullscreenModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalText = document.getElementById('modalText');
+    const modalClose = document.getElementById('modalClose');
 
-    // Permission button elements
+    // Permission elements
     const permBtn = document.getElementById('permissionBtn');
     const permMain = document.getElementById('permMain');
-    const permSub = document.getElementById('permSub');
     const permDot = document.getElementById('permDot');
     const permLabel = document.getElementById('permLabel');
+    const cameraDot = document.getElementById('cameraDot');
+    const cameraStatusText = document.getElementById('cameraStatusText');
 
     // --- HELPERS ---
-    function renderCards() {
-      for (let i = 0; i < 2; i++) {
-        const img = imgEls[i];
-        const ph = placeholders[i];
-        const inp = textInputs[i];
-        const overlay = previewOverlays[i];
-        const indicator = statusIndicators[i];
-        const photo = state.photos[i];
-
-        const hasImage = !!photo.dataUrl;
-        const previewDiv = img.closest('.preview');
-
-        if (hasImage) {
-          img.src = photo.dataUrl;
-          img.style.display = 'block';
-          ph.style.display = 'none';
-          previewDiv.classList.add('has-image');
-          if (photo.text) {
-            overlay.textContent = photo.text;
-            overlay.classList.remove('hidden');
-          } else {
-            overlay.classList.add('hidden');
-          }
-          indicator.innerHTML = '<span class="fill" style="color:#4ade80;">●</span> ready';
-        } else {
-          img.style.display = 'none';
-          ph.style.display = 'flex';
-          previewDiv.classList.remove('has-image');
-          overlay.classList.add('hidden');
-          indicator.innerHTML = '<span class="fill empty">●</span> empty';
-        }
-
-        if (inp.value !== photo.text) {
-          inp.value = photo.text || '';
-        }
-        if (!photo.text && ticketInput.value) {
-          photo.text = ticketInput.value;
-          inp.value = ticketInput.value;
-        }
-      }
-      updateButtons();
-    }
-
-    function updateButtons() {
-      const hasPhotos = state.photos.some(p => p.dataUrl);
-      sendBtn.disabled = !hasPhotos || !state.cameraReady;
-      takeBtns.forEach(btn => {
-        btn.disabled = !state.cameraReady;
-      });
-    }
-
     function setStatus(msg, type = 'info') {
       statusText.textContent = msg;
       statusDot.className = 'status-dot';
@@ -730,141 +778,182 @@
       else statusDot.classList.add('gray');
     }
 
-    function updatePermissionUI(status, main, sub, dotColor, label) {
-      permBtn.className = 'permission-btn ' + status;
-      permMain.textContent = main;
-      permSub.textContent = sub;
-      permDot.className = 'dot ' + dotColor;
-      permLabel.textContent = label;
-      
-      // Enable/disable button
-      permBtn.disabled = (status === 'checking' || status === 'granted');
+    function setCameraStatus(ready, msg) {
+      state.cameraReady = ready;
+      cameraDot.className = 'dot' + (ready ? '' : ' off');
+      cameraStatusText.textContent = msg || (ready ? 'Ready' : 'Off');
+      updateButtons();
     }
 
-    // --- THE MAIN PERMISSION FUNCTION - TRIGGERS BROWSER POPUP ---
+    function updateButtons() {
+      const hasPhotos = state.photos.some(p => p.dataUrl);
+      const allFilled = state.photos.every(p => p.dataUrl);
+      captureBtn.disabled = !state.cameraReady || allFilled;
+      captureBtn.classList.toggle('has-photos', hasPhotos);
+      retakeBtn.disabled = !hasPhotos || !state.cameraReady;
+      sendBtn.disabled = !hasPhotos || !state.cameraReady;
+      
+      // Update capture button text
+      if (allFilled) {
+        captureBtn.style.opacity = '0.5';
+      } else {
+        captureBtn.style.opacity = '1';
+      }
+    }
+
+    function renderMainView() {
+      const slot = state.selectedIndex;
+      const photo = state.photos[slot];
+      const ticket = ticketInput.value || '';
+
+      if (photo.dataUrl) {
+        mainPreviewImg.src = photo.dataUrl;
+        mainPreviewImg.style.display = 'block';
+        mainPlaceholder.style.display = 'none';
+        cameraPreview.classList.add('has-image');
+        
+        const displayText = photo.text || ticket;
+        if (displayText) {
+          mainTextOverlay.textContent = displayText;
+          mainTextOverlay.classList.remove('hidden');
+        } else {
+          mainTextOverlay.classList.add('hidden');
+        }
+      } else {
+        mainPreviewImg.style.display = 'none';
+        mainPlaceholder.style.display = 'flex';
+        cameraPreview.classList.remove('has-image');
+        mainTextOverlay.classList.add('hidden');
+      }
+      updateThumbnails();
+      updateButtons();
+    }
+
+    function updateThumbnails() {
+      for (let i = 0; i < 2; i++) {
+        const thumb = thumbnails[i];
+        const photo = state.photos[i];
+        const existingImg = thumb.querySelector('img');
+        const placeholder = thumb.querySelector('.thumb-placeholder');
+        const retakeLabel = thumb.querySelector('.thumb-retake');
+
+        if (photo.dataUrl) {
+          if (!existingImg) {
+            const img = document.createElement('img');
+            img.src = photo.dataUrl;
+            img.alt = `Photo ${i+1}`;
+            thumb.insertBefore(img, placeholder);
+            thumb.classList.add('has-image');
+          } else {
+            existingImg.src = photo.dataUrl;
+          }
+          if (placeholder) placeholder.style.display = 'none';
+          if (retakeLabel) retakeLabel.style.display = 'block';
+        } else {
+          if (existingImg) existingImg.remove();
+          if (placeholder) placeholder.style.display = 'block';
+          if (retakeLabel) retakeLabel.style.display = 'none';
+          thumb.classList.remove('has-image');
+        }
+        thumb.classList.toggle('active', i === state.selectedIndex);
+      }
+    }
+
+    function syncTextToPhotos() {
+      const ticket = ticketInput.value || '';
+      for (let i = 0; i < 2; i++) {
+        if (!state.photos[i].dataUrl) {
+          state.photos[i].text = ticket;
+        } else if (!state.photos[i].text || state.photos[i].text === '') {
+          state.photos[i].text = ticket;
+        }
+      }
+    }
+
+    // --- PERMISSION ---
     async function requestCameraPermission() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setStatus('❌ Camera not supported on this device', 'error');
-        updatePermissionUI('denied', '❌ Not Supported', 'Camera not available', 'red', 'Camera not supported');
+        setStatus('❌ Camera not supported', 'error');
+        permBtn.className = 'permission-btn denied';
+        permMain.textContent = '❌ Not Supported';
+        permDot.className = 'dot red';
+        permLabel.textContent = 'Camera not available';
         return false;
       }
 
-      updatePermissionUI('checking', '⏳ Requesting Camera...', 'Please wait for browser popup', 'gray', 'Checking permission...');
-      setStatus('📷 Requesting camera access...', 'warning');
+      permBtn.className = 'permission-btn checking';
+      permMain.textContent = '⏳ Requesting...';
+      permDot.className = 'dot gray';
+      permLabel.textContent = 'Please wait...';
+      permBtn.disabled = true;
+      setStatus('📷 Requesting camera...', 'warning');
 
       try {
-        // This TRIGGERS the native browser permission popup!
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
         });
-        
-        // Success! Permission granted
         stream.getTracks().forEach(t => t.stop());
         state.cameraReady = true;
-        
-        updatePermissionUI('granted', '✅ Camera Ready!', 'Permission granted ✅', 'green', 'Camera access granted');
-        setStatus('📸 Camera ready! Take photos below.', 'success');
-        renderCards();
+        permBtn.className = 'permission-btn granted';
+        permMain.textContent = '✅ Camera Ready';
+        permDot.className = 'dot green';
+        permLabel.textContent = 'Camera access granted';
+        setCameraStatus(true, 'Ready');
+        setStatus('📸 Camera ready! Tap capture.', 'success');
+        permBtn.disabled = true;
         return true;
-
       } catch (error) {
-        console.error('Camera permission error:', error);
-        
         if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-          // User denied or browser blocked
-          updatePermissionUI('denied', '⚠️ Camera Blocked', 'Tap to try again', 'red', 'Permission denied');
-          setStatus('⚠️ Camera access denied. Tap the blue button to try again.', 'error');
-          return false;
-        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-          updatePermissionUI('denied', '❌ No Camera Found', 'No camera detected', 'red', 'No camera available');
-          setStatus('❌ No camera found on this device', 'error');
-          return false;
+          permBtn.className = 'permission-btn denied';
+          permMain.textContent = '⚠️ Tap to Allow';
+          permDot.className = 'dot red';
+          permLabel.textContent = 'Permission denied - tap to retry';
+          setStatus('⚠️ Camera denied. Tap the button above.', 'error');
+          permBtn.disabled = false;
         } else {
-          updatePermissionUI('denied', '❌ Error', error.message || 'Unknown error', 'red', 'Camera error');
-          setStatus('❌ Camera error: ' + error.message, 'error');
-          return false;
+          permBtn.className = 'permission-btn denied';
+          permMain.textContent = '❌ Error';
+          permDot.className = 'dot red';
+          permLabel.textContent = error.message || 'Camera error';
+          setStatus('❌ Camera error', 'error');
+          permBtn.disabled = false;
         }
+        return false;
       }
     }
 
-    // --- PERMISSION BUTTON CLICK ---
-    permBtn.addEventListener('click', async function() {
-      if (this.disabled) return;
-      
-      // If already granted, just show status
-      if (state.cameraReady) {
-        setStatus('✅ Camera already accessible', 'success');
-        return;
-      }
-
-      // If denied, try again
-      if (permBtn.className.includes('denied')) {
-        // Reset and try again
-        await requestCameraPermission();
-        return;
-      }
-
-      // Otherwise, request permission (triggers browser popup)
+    permBtn.addEventListener('click', async () => {
+      if (permBtn.disabled) return;
       await requestCameraPermission();
     });
 
-    // --- CHECK PERMISSION ON LOAD (without triggering popup) ---
-    async function checkPermissionOnLoad() {
-      // Don't trigger popup, just check status
-      if (navigator.permissions && navigator.permissions.query) {
-        try {
-          const permStatus = await navigator.permissions.query({ name: 'camera' });
-          if (permStatus.state === 'granted') {
-            // Already granted, verify with a quick test
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-              video: { facingMode: 'environment' } 
-            });
-            stream.getTracks().forEach(t => t.stop());
-            state.cameraReady = true;
-            updatePermissionUI('granted', '✅ Camera Ready!', 'Permission already granted', 'green', 'Camera ready');
-            setStatus('📸 Camera ready! Take photos below.', 'success');
-            renderCards();
-            return true;
-          } else if (permStatus.state === 'denied') {
-            updatePermissionUI('denied', '⚠️ Camera Blocked', 'Tap to try again', 'red', 'Permission denied');
-            setStatus('⚠️ Camera access denied. Tap the blue button to try again.', 'error');
-            return false;
-          }
-        } catch (e) {
-          // Permissions API not supported or error
-        }
-      }
-      
-      // Default state - request permission
-      updatePermissionUI('request', '🔴 Tap to Allow Camera', 'Browser will ask for permission', 'yellow', 'Permission required');
-      setStatus('📷 Tap the blue button to enable camera', 'warning');
-      return false;
-    }
-
-    // --- TAKE PHOTO ---
-    async function takePhoto(index) {
+    // --- CAPTURE PHOTO ---
+    async function capturePhoto() {
       if (!state.cameraReady) {
-        setStatus('⚠️ Camera not ready. Tap the blue button first.', 'error');
-        // Try to request permission automatically
         await requestCameraPermission();
         if (!state.cameraReady) return;
       }
 
-      setStatus('📷 Opening camera...', 'warning');
+      // Find first empty slot
+      let slot = -1;
+      for (let i = 0; i < 2; i++) {
+        if (!state.photos[i].dataUrl) {
+          slot = i;
+          break;
+        }
+      }
+      if (slot === -1) {
+        setStatus('⚠️ Both slots filled! Retake or clear.', 'warning');
+        return;
+      }
+
+      setStatus('📷 Capturing...', 'warning');
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
         });
-        
+
         const video = document.createElement('video');
         video.srcObject = stream;
         video.setAttribute('playsinline', 'true');
@@ -874,16 +963,17 @@
         video.style.borderRadius = '20px';
         video.style.background = '#080e1a';
 
-        const previewArea = document.getElementById(`preview${index}`);
-        const origPh = placeholders[index];
-        const origImg = imgEls[index];
+        // Show preview in main area
+        const origPlaceholder = mainPlaceholder;
+        const origImg = mainPreviewImg;
         origImg.style.display = 'none';
-        origPh.style.display = 'none';
+        origPlaceholder.style.display = 'none';
 
         const vidContainer = document.createElement('div');
+        vidContainer.id = 'temp-video';
         vidContainer.style.width = '100%';
         vidContainer.appendChild(video);
-        previewArea.appendChild(vidContainer);
+        cameraPreview.appendChild(vidContainer);
 
         video.play().then(() => {
           setTimeout(() => {
@@ -894,12 +984,9 @@
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             const ticket = ticketInput.value || '';
-            const photoText = textInputs[index].value || '';
             let combined = ticket;
-            if (photoText && photoText.trim() !== ticket.trim()) {
-              combined = combined ? `${combined} · ${photoText}` : photoText;
-            }
 
+            // Draw text
             if (combined) {
               ctx.font = 'bold 50px -apple-system, "SF Pro Display", system-ui, sans-serif';
               ctx.shadowColor = 'rgba(0,0,0,0.9)';
@@ -928,54 +1015,57 @@
             }
 
             const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-            state.photos[index].dataUrl = dataUrl;
-            state.photos[index].text = combined || photoText || ticket;
-            textInputs[index].value = state.photos[index].text;
+            state.photos[slot].dataUrl = dataUrl;
+            state.photos[slot].text = combined || ticket;
+            state.selectedIndex = slot;
 
             vidContainer.remove();
-            renderCards();
-            setStatus(`✅ Photo ${index+1} captured`, 'success');
+            renderMainView();
+            setStatus(`✅ Photo ${slot+1} captured!`, 'success');
             stream.getTracks().forEach(t => t.stop());
-          }, 800);
+          }, 600);
         }).catch(err => {
           setStatus('❌ Video error: ' + err.message, 'error');
           stream.getTracks().forEach(t => t.stop());
         });
       } catch (error) {
         if (error.name === 'NotAllowedError') {
-          setStatus('❌ Camera access denied. Tap the blue button.', 'error');
-          updatePermissionUI('denied', '⚠️ Camera Blocked', 'Tap to try again', 'red', 'Permission denied');
+          setStatus('❌ Camera denied. Tap the blue button.', 'error');
         } else {
-          setStatus('❌ Camera error: ' + error.message, 'error');
+          setStatus('❌ Error: ' + error.message, 'error');
         }
       }
     }
 
-    // --- REMOVE PHOTO ---
-    function removePhoto(index) {
-      state.photos[index].dataUrl = null;
-      state.photos[index].text = textInputs[index].value || ticketInput.value || '';
-      renderCards();
-      setStatus(`🗑️ Photo ${index+1} removed`, 'info');
-    }
-
-    // --- CLEAR ALL ---
-    function clearAll() {
-      for (let i = 0; i < 2; i++) {
-        state.photos[i].dataUrl = null;
-        state.photos[i].text = ticketInput.value || '';
-        textInputs[i].value = state.photos[i].text;
+    // --- RETAKE ---
+    function retakePhoto() {
+      const slot = state.selectedIndex;
+      if (!state.photos[slot].dataUrl) {
+        // Find first filled slot
+        for (let i = 0; i < 2; i++) {
+          if (state.photos[i].dataUrl) {
+            state.selectedIndex = i;
+            break;
+          }
+        }
       }
-      renderCards();
-      setStatus('🗑️ All photos cleared', 'info');
+      const idx = state.selectedIndex;
+      if (!state.photos[idx].dataUrl) {
+        setStatus('⚠️ No photo to retake', 'warning');
+        return;
+      }
+      state.photos[idx].dataUrl = null;
+      state.photos[idx].text = ticketInput.value || '';
+      renderMainView();
+      setStatus(`🔄 Photo ${idx+1} removed for retake`, 'info');
     }
 
     // --- SEND WHATSAPP ---
     function sendWhatsApp() {
-      syncTextFromInputs();
+      syncTextToPhotos();
       const photosWithData = state.photos.filter(p => p.dataUrl);
       if (photosWithData.length === 0) {
-        setStatus('⚠️ No photos to send. Take at least one.', 'error');
+        setStatus('⚠️ No photos to send', 'error');
         return;
       }
 
@@ -1006,56 +1096,86 @@
             };
             if (navigator.canShare && navigator.canShare(shareData)) {
               navigator.share(shareData)
-                .then(() => setStatus('✅ Shared successfully', 'success'))
+                .then(() => setStatus('✅ Shared!', 'success'))
                 .catch(err => {
                   if (err.name !== 'AbortError') setStatus('⚠️ Share cancelled', 'warning');
                 });
             } else {
               window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, '_blank');
-              setStatus('📤 WhatsApp opened (attach photos manually)', 'info');
+              setStatus('📤 WhatsApp opened', 'info');
             }
           })
           .catch(() => {
             window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, '_blank');
-            setStatus('📤 WhatsApp opened (attach photos manually)', 'info');
+            setStatus('📤 WhatsApp opened', 'info');
           });
       } else {
         window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, '_blank');
-        setStatus('📤 WhatsApp opened (attach photos manually)', 'info');
+        setStatus('📤 WhatsApp opened', 'info');
       }
     }
 
-    function syncTextFromInputs() {
-      for (let i = 0; i < 2; i++) {
-        state.photos[i].text = textInputs[i].value || '';
-      }
-    }
-
-    // --- EVENT LISTENERS ---
-    document.getElementById('takePhoto0').addEventListener('click', () => takePhoto(0));
-    document.getElementById('takePhoto1').addEventListener('click', () => takePhoto(1));
-    document.getElementById('removePhoto0').addEventListener('click', () => removePhoto(0));
-    document.getElementById('removePhoto1').addEventListener('click', () => removePhoto(1));
-    document.getElementById('clearAllBtn').addEventListener('click', clearAll);
-    document.getElementById('sendWhatsAppBtn').addEventListener('click', sendWhatsApp);
-
-    textInputs.forEach((inp, idx) => {
-      inp.addEventListener('input', () => {
-        state.photos[idx].text = inp.value;
+    // --- THUMBNAIL CLICK ---
+    thumbnails.forEach((thumb, idx) => {
+      thumb.addEventListener('click', () => {
         if (state.photos[idx].dataUrl) {
-          const overlay = previewOverlays[idx];
-          if (inp.value) {
-            overlay.textContent = inp.value;
-            overlay.classList.remove('hidden');
+          // Show fullscreen
+          modalImg.src = state.photos[idx].dataUrl;
+          modalText.textContent = state.photos[idx].text || ticketInput.value || `Photo ${idx+1}`;
+          modal.classList.add('active');
+        } else {
+          // Select this slot for capture
+          state.selectedIndex = idx;
+          renderMainView();
+          setStatus(`📸 Slot ${idx+1} selected`, 'info');
+        }
+      });
+      
+      // Retake on thumbnail
+      thumb.querySelector('.thumb-retake')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.photos[idx].dataUrl) {
+          state.photos[idx].dataUrl = null;
+          state.photos[idx].text = ticketInput.value || '';
+          if (state.selectedIndex === idx) {
+            renderMainView();
           } else {
-            overlay.classList.add('hidden');
+            updateThumbnails();
           }
+          setStatus(`🔄 Photo ${idx+1} removed`, 'info');
         }
       });
     });
 
+    // --- MODAL ---
+    modalClose.addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
+    // --- EVENT LISTENERS ---
+    captureBtn.addEventListener('click', capturePhoto);
+    retakeBtn.addEventListener('click', retakePhoto);
+    sendBtn.addEventListener('click', sendWhatsApp);
+
     ticketInput.addEventListener('input', () => {
-      setStatus('🎫 Ticket updated (applies to new photos)', 'info');
+      const ticket = ticketInput.value || '';
+      // Update all empty slots with ticket text
+      for (let i = 0; i < 2; i++) {
+        if (!state.photos[i].dataUrl) {
+          state.photos[i].text = ticket;
+        }
+      }
+      // Update main overlay if showing
+      if (state.photos[state.selectedIndex]?.dataUrl) {
+        const current = state.photos[state.selectedIndex];
+        const displayText = current.text || ticket;
+        if (displayText) {
+          mainTextOverlay.textContent = displayText;
+          mainTextOverlay.classList.remove('hidden');
+        }
+      }
+      setStatus('🎫 Ticket updated', 'info');
     });
 
     // Polyfill roundRect
@@ -1079,8 +1199,17 @@
 
     // --- INIT ---
     async function init() {
-      renderCards();
-      await checkPermissionOnLoad();
+      renderMainView();
+      setStatus('📸 Tap capture to take photo', 'info');
+      // Auto-check permission
+      if (navigator.permissions && navigator.permissions.query) {
+        try {
+          const permStatus = await navigator.permissions.query({ name: 'camera' });
+          if (permStatus.state === 'granted') {
+            await requestCameraPermission();
+          }
+        } catch (e) {}
+      }
     }
 
     init();
