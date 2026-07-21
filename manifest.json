@@ -8,6 +8,7 @@
   "background_color": "#080b12",
   "theme_color": "#0f1625",
   "categories": ["photography", "lifestyle", "utilities"],
+  "scope": "/",
   "icons": [
     {
       "src": "icons/icon-72.png",
@@ -64,21 +65,18 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "screenshots/screenshot-1.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "label": "Camera view with suggestions"
-    }
-  ],
   "shortcuts": [
     {
       "name": "Take Photo",
       "short_name": "Capture",
       "description": "Quickly take a photo",
       "url": ".",
-      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }

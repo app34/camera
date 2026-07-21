@@ -1,7 +1,8 @@
-const CACHE_NAME = 'beddecor-v1';
-const APP_VERSION = '1.0.0';
+// Service Worker for BedDecor PWA
+var CACHE_NAME = 'beddecor-v1';
+var APP_VERSION = '1.0.0';
 
-const ASSETS_TO_CACHE = [
+var ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
@@ -16,58 +17,62 @@ const ASSETS_TO_CACHE = [
 ];
 
 // Install event - cache assets
-self.addEventListener('install', (event) => {
+self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
+      .then(function(cache) {
         console.log('Caching assets...');
         return cache.addAll(ASSETS_TO_CACHE);
       })
-      .then(() => self.skipWaiting())
+      .then(function() {
+        return self.skipWaiting();
+      })
   );
 });
 
 // Activate event - clean old caches
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', function(event) {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(function(cacheNames) {
       return Promise.all(
-        cacheNames.map((cacheName) => {
+        cacheNames.map(function(cacheName) {
           if (cacheName !== CACHE_NAME) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(function() {
+      return self.clients.claim();
+    })
   );
 });
 
 // Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
-      .then((response) => {
+      .then(function(response) {
         // Return cached response if found
         if (response) {
           return response;
         }
         // Otherwise fetch from network
         return fetch(event.request)
-          .then((response) => {
+          .then(function(response) {
             // Don't cache non-successful responses
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
             // Clone response for caching
-            const responseToCache = response.clone();
+            var responseToCache = response.clone();
             caches.open(CACHE_NAME)
-              .then((cache) => {
+              .then(function(cache) {
                 cache.put(event.request, responseToCache);
               });
             return response;
           })
-          .catch(() => {
+          .catch(function() {
             // Offline fallback for specific requests
             if (event.request.mode === 'navigate') {
               return caches.match('./index.html');
@@ -82,7 +87,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 // Handle messages for version updates
-self.addEventListener('message', (event) => {
+self.addEventListener('message', function(event) {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }

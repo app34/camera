@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui">
   <title>BedDecor · Camera</title>
   
   <!-- PWA Meta Tags -->
@@ -10,6 +10,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="BedDecor">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="mobile-web-app-capable" content="yes">
   
   <!-- Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -17,16 +19,36 @@
   <!-- Apple Touch Icon -->
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js')
+          .then(function(registration) {
+            console.log('Service Worker registered successfully');
+          })
+          .catch(function(err) {
+            console.log('Service Worker registration failed:', err);
+          });
+      });
+    }
+  </script>
+  
   <style>
+    /* === RESET === */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-    body {
+    
+    /* === HTML/BODY === */
+    html, body {
       background: #080b12;
       min-height: 100vh;
+      min-height: -webkit-fill-available;
+      height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -34,7 +56,13 @@
       font-family: -apple-system, 'SF Pro Display', 'Segoe UI', Roboto, system-ui, sans-serif;
       touch-action: manipulation;
       overflow: hidden;
+      position: fixed;
+      width: 100%;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
+    
+    /* === APP CONTAINER === */
     .app {
       max-width: 420px;
       width: 100%;
@@ -45,6 +73,8 @@
       position: relative;
       overflow: hidden;
       max-height: 100vh;
+      max-height: -webkit-fill-available;
+      -webkit-overflow-scrolling: touch;
     }
     .app::before {
       content: '';
@@ -57,7 +87,8 @@
                   radial-gradient(ellipse at 80% 90%, rgba(100,140,255,0.04) 0%, transparent 50%);
       pointer-events: none;
     }
-    /* App Version Badge */
+    
+    /* === VERSION BADGE === */
     .version-badge {
       position: absolute;
       bottom: 4px;
@@ -68,6 +99,8 @@
       z-index: 0;
       pointer-events: none;
     }
+    
+    /* === TOP BAR === */
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -98,20 +131,17 @@
       height: 6px;
       border-radius: 50%;
       display: inline-block;
-      animation: pulse-dot 2s infinite;
     }
     .top-bar .camera-status .dot.on { background: #4ade80; }
-    .top-bar .camera-status .dot.off { background: #f87171; animation: none; }
+    .top-bar .camera-status .dot.off { background: #f87171; }
     .top-bar .camera-status .dot.checking { background: #facc15; }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
     .top-bar .right-group {
       display: flex;
       align-items: center;
       gap: 6px;
     }
+    
+    /* === PERMISSION BUTTON === */
     .perm-btn-sm {
       background: rgba(59,130,246,0.15);
       border: 1px solid rgba(59,130,246,0.3);
@@ -127,6 +157,8 @@
       align-items: center;
       gap: 4px;
       white-space: nowrap;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
     .perm-btn-sm:active { transform: scale(0.95); }
     .perm-btn-sm.granted {
@@ -146,7 +178,8 @@
       50% { box-shadow: 0 0 0 6px rgba(248,113,113,0); }
     }
     .perm-btn-sm .icon { font-size: 0.8rem; }
-
+    
+    /* === SETTINGS BUTTON === */
     .settings-btn {
       background: rgba(255,255,255,0.05);
       border: 1px solid #2d3d60;
@@ -162,6 +195,8 @@
       transition: all 0.2s ease;
       touch-action: manipulation;
       position: relative;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
     .settings-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
     .settings-btn.active { border-color: #ff5e7c; color: #ff8aa3; }
@@ -177,7 +212,8 @@
       display: none;
     }
     .settings-btn .badge-dot.show { display: block; }
-
+    
+    /* === INSTALL BUTTON === */
     .install-btn {
       background: rgba(74,222,128,0.12);
       border: 1px solid rgba(74,222,128,0.25);
@@ -193,10 +229,13 @@
       align-items: center;
       gap: 4px;
       white-space: nowrap;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
     .install-btn:active { transform: scale(0.95); }
     .install-btn.hidden { display: none; }
-
+    
+    /* === TICKET BOX === */
     .ticket-section {
       position: relative;
       z-index: 1;
@@ -254,10 +293,13 @@
       color: #eef4ff;
       outline: none;
       transition: 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
     }
     .ticket-box input::placeholder { color: #3d517a; font-weight: 400; }
     .ticket-box input:focus { box-shadow: 0 0 0 2px rgba(255,94,124,0.2); }
-
+    
+    /* === SUGGESTIONS === */
     .suggestions-header {
       display: flex;
       justify-content: space-between;
@@ -283,6 +325,8 @@
       display: flex;
       align-items: center;
       gap: 4px;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
     .suggestions-header .add-btn:active {
       background: rgba(255,94,124,0.1);
@@ -311,6 +355,8 @@
       align-items: center;
       gap: 4px;
       white-space: nowrap;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
     .suggestion-chip:active { transform: scale(0.95); }
     .suggestion-chip.selected {
@@ -327,7 +373,8 @@
       text-align: center;
       opacity: 0.6;
     }
-
+    
+    /* === CAMERA PREVIEW === */
     .camera-container {
       position: relative;
       z-index: 1;
@@ -337,6 +384,7 @@
       background: #080e1a;
       border-radius: 20px;
       min-height: 380px;
+      min-height: 50vh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -360,11 +408,27 @@
       gap: 8px;
       padding: 30px 20px;
       color: #4a5f89;
+      text-align: center;
     }
     .camera-preview .placeholder .big-icon { font-size: 4rem; opacity: 0.3; }
     .camera-preview .placeholder .main-text { font-size: 0.95rem; font-weight: 500; color: #6a80ad; }
     .camera-preview .placeholder .sub-text { font-size: 0.7rem; color: #3d517a; }
-
+    
+    /* === LIVE VIDEO === */
+    .camera-preview video {
+      width: 100%;
+      height: 100%;
+      min-height: 380px;
+      min-height: 50vh;
+      object-fit: cover;
+      border-radius: 18px;
+      display: block;
+      background: #080e1a;
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    
+    /* === CAMERA CONTROLS === */
     .camera-controls {
       display: flex;
       gap: 10px;
@@ -386,6 +450,8 @@
       box-shadow: 0 0 30px rgba(255,94,124,0.15);
       touch-action: manipulation;
       flex-shrink: 0;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
     .btn-capture:active {
       transform: scale(0.92);
@@ -409,7 +475,8 @@
       box-shadow: 0 0 30px rgba(74,222,128,0.15);
     }
     .btn-capture.has-photos .inner-circle { background: #4ade80; }
-
+    
+    /* === ACTION BUTTONS === */
     .btn-action {
       padding: 8px 14px;
       border: none;
@@ -430,6 +497,8 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
     .btn-action:active {
       transform: translateY(3px);
@@ -456,7 +525,8 @@
       box-shadow: 0 3px 0 #5e1d28;
     }
     .btn-action.danger:active { box-shadow: 0 0px 0 #5e1d28; }
-
+    
+    /* === THUMBNAILS === */
     .thumbnails-row {
       display: flex;
       gap: 10px;
@@ -479,6 +549,8 @@
       justify-content: center;
       position: relative;
       flex-shrink: 0;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
     .thumbnail:active { transform: scale(0.92); }
     .thumbnail.active {
@@ -498,6 +570,7 @@
       right: 5px;
       background: rgba(0,0,0,0.7);
       backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       font-size: 0.5rem;
       font-weight: 700;
       color: #fff;
@@ -505,7 +578,8 @@
       border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.1);
     }
-
+    
+    /* === FULLSCREEN MODAL === */
     .fullscreen-modal {
       position: fixed;
       top: 0;
@@ -514,6 +588,7 @@
       bottom: 0;
       background: rgba(0,0,0,0.92);
       backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -548,6 +623,7 @@
       color: #fff;
       cursor: pointer;
       backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       transition: 0.2s;
       display: flex;
       align-items: center;
@@ -558,7 +634,8 @@
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
-
+    
+    /* === STATUS BAR === */
     .status-bar {
       background: #0c1322;
       border-radius: 30px;
@@ -588,7 +665,8 @@
     .status-bar .status-dot.yellow { background: #facc15; }
     .status-bar .status-dot.red { background: #f87171; }
     .status-bar .status-dot.gray { background: #4a5f89; }
-
+    
+    /* === SETTINGS MODAL === */
     .settings-modal {
       position: fixed;
       top: 0;
@@ -597,6 +675,7 @@
       bottom: 0;
       background: rgba(0,0,0,0.88);
       backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -644,6 +723,7 @@
       flex: 1;
       overflow-y: auto;
       padding-right: 4px;
+      -webkit-overflow-scrolling: touch;
     }
     .settings-modal .modal-content .settings-list::-webkit-scrollbar {
       width: 3px;
@@ -656,6 +736,8 @@
       background: #2d3d60;
       border-radius: 10px;
     }
+    
+    /* === SETTINGS ITEMS === */
     .settings-item {
       display: flex;
       align-items: center;
@@ -668,11 +750,31 @@
       transition: 0.15s;
     }
     .settings-item .item-checkbox {
-      width: 18px;
-      height: 18px;
-      accent-color: #ff5e7c;
+      width: 20px;
+      height: 20px;
       cursor: pointer;
       flex-shrink: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #0a111f;
+      border: 2px solid #2d3d60;
+      border-radius: 4px;
+      position: relative;
+      transition: 0.15s;
+    }
+    .settings-item .item-checkbox:checked {
+      background: #ff5e7c;
+      border-color: #ff5e7c;
+    }
+    .settings-item .item-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
     }
     .settings-item .item-text {
       flex: 1;
@@ -707,6 +809,8 @@
       font-size: 0.8rem;
       color: #eef4ff;
       outline: none;
+      -webkit-appearance: none;
+      appearance: none;
     }
     .settings-item .edit-input:focus { border-color: #facc15; }
     .settings-item .edit-save-btn {
@@ -726,7 +830,8 @@
       padding: 20px 10px;
       font-size: 0.8rem;
     }
-
+    
+    /* === SETTINGS ACTIONS === */
     .settings-modal .modal-content .settings-actions {
       display: flex;
       gap: 10px;
@@ -765,7 +870,8 @@
       background: linear-gradient(135deg, #3b82f6, #2563eb);
       color: #fff;
     }
-
+    
+    /* === ADD SUGGESTION MODAL === */
     .add-suggestion-modal {
       display: none;
       position: fixed;
@@ -775,6 +881,7 @@
       bottom: 0;
       background: rgba(0,0,0,0.85);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       align-items: center;
       justify-content: center;
       z-index: 10000;
@@ -808,6 +915,8 @@
       color: #eef4ff;
       outline: none;
       margin-bottom: 12px;
+      -webkit-appearance: none;
+      appearance: none;
     }
     .add-suggestion-modal .modal-content input:focus {
       border-color: #ff5e7c;
@@ -836,7 +945,8 @@
       background: #1f2a44;
       color: #b0c5ef;
     }
-
+    
+    /* === CLEAR DATA MODAL === */
     .clear-data-modal {
       display: none;
       position: fixed;
@@ -846,6 +956,7 @@
       bottom: 0;
       background: rgba(0,0,0,0.9);
       backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       align-items: center;
       justify-content: center;
       z-index: 10002;
@@ -901,11 +1012,13 @@
       background: #1f2a44;
       color: #b0c5ef;
     }
-
+    
+    /* === RESPONSIVE === */
     @media (max-width: 420px) {
       .app { padding: 10px 10px 14px; border-radius: 32px; }
-      .camera-preview { min-height: 280px; }
+      .camera-preview { min-height: 280px; min-height: 40vh; }
       .camera-preview .placeholder .big-icon { font-size: 3rem; }
+      .camera-preview video { min-height: 280px; min-height: 40vh; }
       .thumbnail { width: 60px; height: 60px; }
       .btn-capture { width: 58px; height: 58px; }
       .btn-capture .inner-circle { width: 44px; height: 44px; }
@@ -913,7 +1026,8 @@
       .suggestion-chip .chip-text { max-width: 80px; }
     }
     @media (max-width: 360px) {
-      .camera-preview { min-height: 220px; }
+      .camera-preview { min-height: 220px; min-height: 35vh; }
+      .camera-preview video { min-height: 220px; min-height: 35vh; }
       .thumbnail { width: 50px; height: 50px; }
       .btn-capture { width: 50px; height: 50px; }
       .btn-capture .inner-circle { width: 38px; height: 38px; }
@@ -921,6 +1035,13 @@
       .suggestions { gap: 4px; }
       .suggestion-chip { font-size: 0.55rem; padding: 2px 8px; }
       .suggestion-chip .chip-text { max-width: 60px; }
+    }
+    @media (orientation: landscape) and (max-height: 500px) {
+      .camera-preview { min-height: 50vh; }
+      .camera-preview video { min-height: 50vh; }
+      .thumbnail { width: 50px; height: 50px; }
+      .btn-capture { width: 50px; height: 50px; }
+      .btn-capture .inner-circle { width: 38px; height: 38px; }
     }
   </style>
 </head>
@@ -959,7 +1080,7 @@
           <button class="clear-btn" id="clearTextBtn" title="Clear text">✕</button>
         </span>
       </div>
-      <input type="text" id="ticketText" placeholder="Type or select suggestions..." value="">
+      <input type="text" id="ticketText" placeholder="Type or select suggestions..." value="" autocomplete="off">
       
       <div class="suggestions-header">
         <span class="label">💡 Suggestions <span id="selectedCount">(0 selected)</span></span>
@@ -976,9 +1097,10 @@
     <div class="camera-preview" id="cameraPreview">
       <div class="placeholder" id="mainPlaceholder">
         <span class="big-icon">📷</span>
-        <span class="main-text">No photo yet</span>
-        <span class="sub-text">Tap the capture button</span>
+        <span class="main-text">Camera Starting...</span>
+        <span class="sub-text">Please allow camera access</span>
       </div>
+      <video id="liveVideo" autoplay playsinline muted webkit-playsinline style="display:none;"></video>
       <img id="mainPreviewImg" style="display:none;" alt="Preview">
     </div>
 
@@ -1006,7 +1128,7 @@
   <!-- STATUS -->
   <div class="status-bar">
     <span class="status-dot gray" id="statusDot"></span>
-    <span id="statusText">Ready to capture</span>
+    <span id="statusText">Initializing camera...</span>
   </div>
 </div>
 
@@ -1022,7 +1144,7 @@
 <div class="add-suggestion-modal" id="addSuggestionModal">
   <div class="modal-content">
     <h3>➕ Add Suggestion</h3>
-    <input type="text" id="newSuggestionInput" placeholder="Enter suggestion text..." maxlength="50">
+    <input type="text" id="newSuggestionInput" placeholder="Enter suggestion text..." maxlength="50" autocomplete="off">
     <div class="modal-actions">
       <button class="btn-cancel" id="cancelAddBtn">Cancel</button>
       <button class="btn-confirm" id="confirmAddBtn">Add</button>
@@ -1053,7 +1175,7 @@
   <div class="modal-content">
     <div class="warning-icon">⚠️</div>
     <h3>Clear All Data?</h3>
-    <p>This will permanently delete all your suggestions and reset the app to default. Your photos will not be affected.</p>
+    <p>This will permanently delete all your suggestions and reset the app to default.</p>
     <div class="modal-actions">
       <button class="btn-cancel-clear" id="cancelClearBtn">Cancel</button>
       <button class="btn-confirm-clear" id="confirmClearBtn">Yes, Clear Everything</button>
@@ -1084,64 +1206,67 @@
       selectedIndex: 0,
       suggestions: [],
       selectedSuggestions: [],
-      editingIndex: -1
+      editingIndex: -1,
+      videoStream: null,
+      isVideoRunning: false,
+      isInitializing: false
     };
 
     // ============================================================
     // DOM REFS
     // ============================================================
-    const mainPreviewImg = document.getElementById('mainPreviewImg');
-    const mainPlaceholder = document.getElementById('mainPlaceholder');
-    const cameraPreview = document.getElementById('cameraPreview');
-    const thumbnails = [document.getElementById('thumb0'), document.getElementById('thumb1')];
-    const ticketInput = document.getElementById('ticketText');
-    const charCount = document.getElementById('charCount');
-    const clearTextBtn = document.getElementById('clearTextBtn');
-    const suggestionsContainer = document.getElementById('suggestionsContainer');
-    const selectedCount = document.getElementById('selectedCount');
-    const addSuggestionBtn = document.getElementById('addSuggestionBtn');
-    const addModal = document.getElementById('addSuggestionModal');
-    const newSuggestionInput = document.getElementById('newSuggestionInput');
-    const confirmAddBtn = document.getElementById('confirmAddBtn');
-    const cancelAddBtn = document.getElementById('cancelAddBtn');
-    const statusText = document.getElementById('statusText');
-    const statusDot = document.getElementById('statusDot');
-    const captureBtn = document.getElementById('captureBtn');
-    const retakeBtn = document.getElementById('retakeBtn');
-    const sendBtn = document.getElementById('sendBtn');
-    const modal = document.getElementById('fullscreenModal');
-    const modalImg = document.getElementById('modalImg');
-    const modalClose = document.getElementById('modalClose');
-    const permBtn = document.getElementById('permissionBtn');
-    const permText = document.getElementById('permText');
-    const cameraDot = document.getElementById('cameraDot');
-    const cameraStatusText = document.getElementById('cameraStatusText');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsModal = document.getElementById('settingsModal');
-    const settingsList = document.getElementById('settingsList');
-    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-    const doneSettingsBtn = document.getElementById('doneSettingsBtn');
-    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
-    const clearAllDataBtn = document.getElementById('clearAllDataBtn');
-    const clearDataModal = document.getElementById('clearDataModal');
-    const cancelClearBtn = document.getElementById('cancelClearBtn');
-    const confirmClearBtn = document.getElementById('confirmClearBtn');
-    const settingsBadge = document.getElementById('settingsBadge');
-    const versionBadge = document.getElementById('versionBadge');
-    const installBtn = document.getElementById('installBtn');
+    var mainPreviewImg = document.getElementById('mainPreviewImg');
+    var mainPlaceholder = document.getElementById('mainPlaceholder');
+    var cameraPreview = document.getElementById('cameraPreview');
+    var liveVideo = document.getElementById('liveVideo');
+    var thumbnails = [document.getElementById('thumb0'), document.getElementById('thumb1')];
+    var ticketInput = document.getElementById('ticketText');
+    var charCount = document.getElementById('charCount');
+    var clearTextBtn = document.getElementById('clearTextBtn');
+    var suggestionsContainer = document.getElementById('suggestionsContainer');
+    var selectedCount = document.getElementById('selectedCount');
+    var addSuggestionBtn = document.getElementById('addSuggestionBtn');
+    var addModal = document.getElementById('addSuggestionModal');
+    var newSuggestionInput = document.getElementById('newSuggestionInput');
+    var confirmAddBtn = document.getElementById('confirmAddBtn');
+    var cancelAddBtn = document.getElementById('cancelAddBtn');
+    var statusText = document.getElementById('statusText');
+    var statusDot = document.getElementById('statusDot');
+    var captureBtn = document.getElementById('captureBtn');
+    var retakeBtn = document.getElementById('retakeBtn');
+    var sendBtn = document.getElementById('sendBtn');
+    var modal = document.getElementById('fullscreenModal');
+    var modalImg = document.getElementById('modalImg');
+    var modalClose = document.getElementById('modalClose');
+    var permBtn = document.getElementById('permissionBtn');
+    var permText = document.getElementById('permText');
+    var cameraDot = document.getElementById('cameraDot');
+    var cameraStatusText = document.getElementById('cameraStatusText');
+    var settingsBtn = document.getElementById('settingsBtn');
+    var settingsModal = document.getElementById('settingsModal');
+    var settingsList = document.getElementById('settingsList');
+    var closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    var doneSettingsBtn = document.getElementById('doneSettingsBtn');
+    var deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    var clearAllDataBtn = document.getElementById('clearAllDataBtn');
+    var clearDataModal = document.getElementById('clearDataModal');
+    var cancelClearBtn = document.getElementById('cancelClearBtn');
+    var confirmClearBtn = document.getElementById('confirmClearBtn');
+    var settingsBadge = document.getElementById('settingsBadge');
+    var versionBadge = document.getElementById('versionBadge');
+    var installBtn = document.getElementById('installBtn');
 
     // ============================================================
     // VERSION MANAGEMENT
     // ============================================================
     function checkVersion() {
-      const savedVersion = localStorage.getItem(VERSION_KEY);
-      if (savedVersion !== APP_VERSION) {
-        // Version changed - migrate or reset
-        localStorage.setItem(VERSION_KEY, APP_VERSION);
-        // Keep suggestions but mark for migration if needed
-        setStatus(`🔄 Updated to v${APP_VERSION}`, 'info');
-      }
-      versionBadge.textContent = `v${APP_VERSION}`;
+      try {
+        var savedVersion = localStorage.getItem(VERSION_KEY);
+        if (savedVersion !== APP_VERSION) {
+          localStorage.setItem(VERSION_KEY, APP_VERSION);
+        }
+      } catch (e) {}
+      versionBadge.textContent = 'v' + APP_VERSION;
     }
 
     // ============================================================
@@ -1149,9 +1274,9 @@
     // ============================================================
     function loadSuggestions() {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        var saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-          const parsed = JSON.parse(saved);
+          var parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
             state.suggestions = parsed;
             return;
@@ -1194,7 +1319,8 @@
     // ============================================================
     // HELPERS
     // ============================================================
-    function setStatus(msg, type = 'info') {
+    function setStatus(msg, type) {
+      type = type || 'info';
       statusText.textContent = msg;
       statusDot.className = 'status-dot';
       if (type === 'success') statusDot.classList.add('green');
@@ -1211,9 +1337,9 @@
     }
 
     function updateButtons() {
-      const hasPhotos = state.photos.some(p => p.dataUrl);
-      const allFilled = state.photos.every(p => p.dataUrl);
-      captureBtn.disabled = !state.cameraReady || allFilled;
+      var hasPhotos = state.photos.some(function(p) { return p.dataUrl; });
+      var allFilled = state.photos.every(function(p) { return p.dataUrl; });
+      captureBtn.disabled = !state.cameraReady || allFilled || state.isInitializing;
       captureBtn.classList.toggle('has-photos', hasPhotos);
       retakeBtn.disabled = !hasPhotos || !state.cameraReady;
       sendBtn.disabled = !hasPhotos || !state.cameraReady;
@@ -1224,27 +1350,147 @@
     }
 
     // ============================================================
+    // CAMERA - START LIVE VIDEO
+    // ============================================================
+    function startCamera() {
+      if (state.isVideoRunning) return Promise.resolve(true);
+      if (state.isInitializing) return Promise.resolve(false);
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setStatus('❌ Camera not supported', 'error');
+        return Promise.resolve(false);
+      }
+
+      state.isInitializing = true;
+      setStatus('📷 Starting camera...', 'warning');
+
+      return navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      })
+      .then(function(stream) {
+        state.videoStream = stream;
+        
+        // iOS fix: set srcObject after stream is ready
+        liveVideo.srcObject = stream;
+        liveVideo.setAttribute('playsinline', 'true');
+        liveVideo.setAttribute('webkit-playsinline', 'true');
+        liveVideo.muted = true;
+        liveVideo.style.display = 'block';
+        liveVideo.style.width = '100%';
+        liveVideo.style.height = '100%';
+        liveVideo.style.minHeight = '380px';
+        liveVideo.style.objectFit = 'cover';
+        liveVideo.style.borderRadius = '18px';
+        liveVideo.style.background = '#080e1a';
+        
+        // Hide placeholder, show video
+        mainPlaceholder.style.display = 'none';
+        mainPreviewImg.style.display = 'none';
+        liveVideo.style.display = 'block';
+        
+        // Wait for video to be ready
+        return new Promise(function(resolve) {
+          if (liveVideo.readyState >= 2) {
+            resolve();
+          } else {
+            liveVideo.addEventListener('loadeddata', resolve, { once: true });
+            // Fallback timeout
+            setTimeout(resolve, 3000);
+          }
+        });
+      })
+      .then(function() {
+        // Try to play video
+        return liveVideo.play().catch(function() {
+          console.log('Autoplay prevented, waiting for user interaction');
+          setStatus('📱 Tap the screen to start camera', 'warning');
+          return Promise.resolve();
+        });
+      })
+      .then(function() {
+        state.isVideoRunning = true;
+        state.cameraReady = true;
+        setCameraStatus(true, 'Live');
+        setStatus('📸 Camera ready! Tap capture.', 'success');
+        permBtn.className = 'perm-btn-sm granted';
+        permText.textContent = '✅ Ready';
+        state.isInitializing = false;
+        renderMainView();
+        return true;
+      })
+      .catch(function(error) {
+        console.error('Camera error:', error);
+        state.isInitializing = false;
+        
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          setStatus('⚠️ Camera denied. Tap "Allow Camera".', 'error');
+          permBtn.className = 'perm-btn-sm denied';
+          permText.textContent = '⚠️ Allow';
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          setStatus('❌ No camera found on this device', 'error');
+          permBtn.className = 'perm-btn-sm denied';
+          permText.textContent = '❌ No Camera';
+        } else {
+          setStatus('❌ Camera error: ' + error.message, 'error');
+          permBtn.className = 'perm-btn-sm denied';
+          permText.textContent = '❌ Error';
+        }
+        return false;
+      });
+    }
+
+    function stopCamera() {
+      if (state.videoStream) {
+        state.videoStream.getTracks().forEach(function(t) {
+          try { t.stop(); } catch (e) {}
+        });
+        state.videoStream = null;
+      }
+      state.isVideoRunning = false;
+      liveVideo.style.display = 'none';
+      liveVideo.srcObject = null;
+    }
+
+    // ============================================================
+    // PERMISSION BUTTON
+    // ============================================================
+    permBtn.addEventListener('click', function() {
+      if (this.disabled) return;
+      if (state.isVideoRunning) {
+        setStatus('📸 Camera already running', 'success');
+        return;
+      }
+      startCamera();
+    });
+
+    // ============================================================
     // SUGGESTIONS RENDER
     // ============================================================
     function renderSuggestions() {
       suggestionsContainer.innerHTML = '';
       
       if (state.suggestions.length === 0) {
-        const empty = document.createElement('div');
+        var empty = document.createElement('div');
         empty.className = 'empty-suggestions';
         empty.textContent = 'No suggestions yet. Tap "➕ Add" to create one.';
         suggestionsContainer.appendChild(empty);
         return;
       }
 
-      state.suggestions.forEach(text => {
-        const chip = document.createElement('div');
+      state.suggestions.forEach(function(text) {
+        var chip = document.createElement('div');
         chip.className = 'suggestion-chip';
-        if (state.selectedSuggestions.includes(text)) {
+        if (state.selectedSuggestions.indexOf(text) !== -1) {
           chip.classList.add('selected');
         }
-        chip.innerHTML = `<span class="chip-text">${text}</span>`;
-        chip.addEventListener('click', function() {
+        chip.innerHTML = '<span class="chip-text">' + text + '</span>';
+        chip.addEventListener('click', function(e) {
+          e.preventDefault();
           toggleSuggestion(text);
         });
         suggestionsContainer.appendChild(chip);
@@ -1254,11 +1500,11 @@
     }
 
     function updateSelectedCount() {
-      selectedCount.textContent = `(${state.selectedSuggestions.length} selected)`;
+      selectedCount.textContent = '(' + state.selectedSuggestions.length + ' selected)';
     }
 
     function toggleSuggestion(text) {
-      const index = state.selectedSuggestions.indexOf(text);
+      var index = state.selectedSuggestions.indexOf(text);
       if (index === -1) {
         state.selectedSuggestions.push(text);
       } else {
@@ -1269,7 +1515,7 @@
 
     function updateMessageFromSuggestions() {
       if (state.selectedSuggestions.length > 0) {
-        const combined = state.selectedSuggestions.join(' · ');
+        var combined = state.selectedSuggestions.join(' · ');
         if (ticketInput.value !== combined) {
           ticketInput.value = combined;
           updateCharCount();
@@ -1284,7 +1530,7 @@
       settingsList.innerHTML = '';
       
       if (state.suggestions.length === 0) {
-        const empty = document.createElement('div');
+        var empty = document.createElement('div');
         empty.className = 'settings-empty';
         empty.textContent = 'No suggestions yet. Add some from the main screen.';
         settingsList.appendChild(empty);
@@ -1292,63 +1538,69 @@
         return;
       }
       
-      state.suggestions.forEach((text, index) => {
-        const item = document.createElement('div');
+      state.suggestions.forEach(function(text, index) {
+        var item = document.createElement('div');
         item.className = 'settings-item';
         if (state.editingIndex === index) {
           item.classList.add('editing');
         }
         
-        const checkbox = document.createElement('input');
+        var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'item-checkbox';
         checkbox.dataset.index = index;
         checkbox.addEventListener('change', updateDeleteButton);
+        checkbox.addEventListener('touchstart', function(e) {
+          e.stopPropagation();
+        });
         
-        const textSpan = document.createElement('span');
+        var textSpan = document.createElement('span');
         textSpan.className = 'item-text';
         textSpan.textContent = text;
         
-        const actions = document.createElement('div');
+        var actions = document.createElement('div');
         actions.className = 'item-actions';
         
         if (state.editingIndex === index) {
-          const editInput = document.createElement('input');
+          var editInput = document.createElement('input');
           editInput.type = 'text';
           editInput.className = 'edit-input';
           editInput.value = text;
           editInput.maxLength = 50;
-          editInput.addEventListener('keydown', (e) => {
+          editInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') saveEdit(index, editInput.value);
             if (e.key === 'Escape') { state.editingIndex = -1; renderSettings(); }
           });
           
-          const saveBtn = document.createElement('button');
+          var saveBtn = document.createElement('button');
           saveBtn.className = 'edit-save-btn';
           saveBtn.textContent = 'Save';
-          saveBtn.addEventListener('click', function() {
+          saveBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             saveEdit(index, editInput.value);
           });
           
           item.appendChild(editInput);
           item.appendChild(saveBtn);
-          setTimeout(() => editInput.focus(), 50);
+          setTimeout(function() { editInput.focus(); }, 100);
         } else {
-          const editBtn = document.createElement('button');
+          var editBtn = document.createElement('button');
           editBtn.className = 'edit-btn';
           editBtn.textContent = '✏️';
           editBtn.title = 'Edit';
-          editBtn.addEventListener('click', function() {
+          editBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             state.editingIndex = index;
             renderSettings();
           });
           
-          const deleteBtn = document.createElement('button');
+          var deleteBtn = document.createElement('button');
           deleteBtn.className = 'delete-btn';
           deleteBtn.textContent = '🗑️';
           deleteBtn.title = 'Delete';
-          deleteBtn.addEventListener('click', function() {
-            if (confirm(`Remove "${text}" from suggestions?`)) {
+          deleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Remove "' + text + '" from suggestions?')) {
               deleteSuggestion(index);
             }
           });
@@ -1367,18 +1619,18 @@
     }
 
     function saveEdit(index, newText) {
-      const trimmed = newText.trim();
+      var trimmed = newText.trim();
       if (!trimmed) {
         setStatus('⚠️ Please enter a valid suggestion', 'warning');
         return;
       }
-      const oldText = state.suggestions[index];
-      if (trimmed !== oldText && state.suggestions.includes(trimmed)) {
+      var oldText = state.suggestions[index];
+      if (trimmed !== oldText && state.suggestions.indexOf(trimmed) !== -1) {
         setStatus('⚠️ Suggestion already exists', 'warning');
         return;
       }
       state.suggestions[index] = trimmed;
-      const selIndex = state.selectedSuggestions.indexOf(oldText);
+      var selIndex = state.selectedSuggestions.indexOf(oldText);
       if (selIndex !== -1) {
         state.selectedSuggestions[selIndex] = trimmed;
       }
@@ -1386,13 +1638,13 @@
       saveSuggestions();
       renderSettings();
       renderSuggestions();
-      setStatus(`✅ Updated suggestion`, 'success');
+      setStatus('✅ Updated suggestion', 'success');
     }
 
     function deleteSuggestion(index) {
-      const text = state.suggestions[index];
+      var text = state.suggestions[index];
       state.suggestions.splice(index, 1);
-      const selIndex = state.selectedSuggestions.indexOf(text);
+      var selIndex = state.selectedSuggestions.indexOf(text);
       if (selIndex !== -1) {
         state.selectedSuggestions.splice(selIndex, 1);
       }
@@ -1400,16 +1652,16 @@
       saveSuggestions();
       renderSettings();
       renderSuggestions();
-      setStatus(`🗑️ Removed: "${text}"`, 'info');
+      setStatus('🗑️ Removed: "' + text + '"', 'info');
     }
 
     function updateDeleteButton() {
-      const checked = settingsList.querySelectorAll('.item-checkbox:checked');
+      var checked = settingsList.querySelectorAll('.item-checkbox:checked');
       deleteSelectedBtn.disabled = checked.length === 0;
       if (checked.length > 0) {
-        deleteSelectedBtn.textContent = `🗑️ Delete Selected (${checked.length})`;
+        deleteSelectedBtn.textContent = '🗑️ Delete Selected (' + checked.length + ')';
       } else {
-        deleteSelectedBtn.textContent = `🗑️ Delete Selected`;
+        deleteSelectedBtn.textContent = '🗑️ Delete Selected';
       }
     }
 
@@ -1417,12 +1669,12 @@
     // ADD SUGGESTION
     // ============================================================
     function addSuggestion(text) {
-      const trimmed = text.trim();
+      var trimmed = text.trim();
       if (!trimmed) {
         setStatus('⚠️ Please enter a suggestion', 'error');
         return;
       }
-      if (state.suggestions.includes(trimmed)) {
+      if (state.suggestions.indexOf(trimmed) !== -1) {
         setStatus('⚠️ Suggestion already exists', 'warning');
         return;
       }
@@ -1430,123 +1682,48 @@
       saveSuggestions();
       renderSuggestions();
       renderSettings();
-      setStatus(`✅ Added: "${trimmed}"`, 'success');
+      setStatus('✅ Added: "' + trimmed + '"', 'success');
       newSuggestionInput.value = '';
       addModal.classList.remove('active');
     }
 
     // ============================================================
-    // PERMISSION
-    // ============================================================
-    async function requestCameraPermission() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setStatus('❌ Camera not supported', 'error');
-        permBtn.className = 'perm-btn-sm denied';
-        permText.textContent = 'Not Supported';
-        return false;
-      }
-
-      permBtn.className = 'perm-btn-sm checking';
-      permText.textContent = '⏳...';
-      setStatus('📷 Requesting camera...', 'warning');
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            facingMode: 'environment',
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          }
-        });
-        stream.getTracks().forEach(t => t.stop());
-        state.cameraReady = true;
-        permBtn.className = 'perm-btn-sm granted';
-        permText.textContent = '✅ Ready';
-        setCameraStatus(true, 'Ready');
-        setStatus('📸 Camera ready! Tap capture.', 'success');
-        return true;
-      } catch (error) {
-        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-          permBtn.className = 'perm-btn-sm denied';
-          permText.textContent = '⚠️ Allow';
-          setStatus('⚠️ Camera denied. Tap the button.', 'error');
-          permBtn.disabled = false;
-        } else {
-          permBtn.className = 'perm-btn-sm denied';
-          permText.textContent = '❌ Error';
-          setStatus('❌ Camera error', 'error');
-          permBtn.disabled = false;
-        }
-        return false;
-      }
-    }
-
-    permBtn.addEventListener('click', async () => {
-      if (permBtn.disabled) return;
-      await requestCameraPermission();
-    });
-
-    // ============================================================
-    // PWA INSTALL
-    // ============================================================
-    let deferredPrompt = null;
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.classList.remove('hidden');
-    });
-
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const result = await deferredPrompt.userChoice;
-        if (result.outcome === 'accepted') {
-          setStatus('✅ App installed!', 'success');
-        }
-        deferredPrompt = null;
-        installBtn.classList.add('hidden');
-      }
-    });
-
-    window.addEventListener('appinstalled', () => {
-      setStatus('🎉 App installed successfully!', 'success');
-      installBtn.classList.add('hidden');
-    });
-
-    // ============================================================
     // SETTINGS EVENTS
     // ============================================================
-    settingsBtn.addEventListener('click', function() {
+    settingsBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       state.editingIndex = -1;
       renderSettings();
       settingsModal.classList.add('active');
       this.classList.add('active');
     });
 
-    closeSettingsBtn.addEventListener('click', function() {
+    closeSettingsBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       settingsModal.classList.remove('active');
       settingsBtn.classList.remove('active');
     });
 
-    doneSettingsBtn.addEventListener('click', function() {
+    doneSettingsBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       settingsModal.classList.remove('active');
       settingsBtn.classList.remove('active');
       setStatus('✅ Settings saved', 'success');
     });
 
-    deleteSelectedBtn.addEventListener('click', function() {
-      const checked = settingsList.querySelectorAll('.item-checkbox:checked');
+    deleteSelectedBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      var checked = settingsList.querySelectorAll('.item-checkbox:checked');
       if (checked.length === 0) return;
       
-      const indices = Array.from(checked).map(cb => parseInt(cb.dataset.index)).sort((a,b) => b - a);
-      const texts = indices.map(i => state.suggestions[i]);
+      var indices = Array.from(checked).map(function(cb) { return parseInt(cb.dataset.index); }).sort(function(a,b) { return b - a; });
+      var texts = indices.map(function(i) { return state.suggestions[i]; });
       
-      if (confirm(`Delete ${texts.length} suggestion(s)?`)) {
-        indices.forEach(i => {
-          const text = state.suggestions[i];
+      if (confirm('Delete ' + texts.length + ' suggestion(s)?')) {
+        indices.forEach(function(i) {
+          var text = state.suggestions[i];
           state.suggestions.splice(i, 1);
-          const selIndex = state.selectedSuggestions.indexOf(text);
+          var selIndex = state.selectedSuggestions.indexOf(text);
           if (selIndex !== -1) {
             state.selectedSuggestions.splice(selIndex, 1);
           }
@@ -1554,19 +1731,22 @@
         saveSuggestions();
         renderSettings();
         renderSuggestions();
-        setStatus(`🗑️ Deleted ${texts.length} suggestion(s)`, 'info');
+        setStatus('🗑️ Deleted ' + texts.length + ' suggestion(s)', 'info');
       }
     });
 
-    clearAllDataBtn.addEventListener('click', function() {
+    clearAllDataBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       clearDataModal.classList.add('active');
     });
 
-    cancelClearBtn.addEventListener('click', function() {
+    cancelClearBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       clearDataModal.classList.remove('active');
     });
 
-    confirmClearBtn.addEventListener('click', function() {
+    confirmClearBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       clearAllData();
       clearDataModal.classList.remove('active');
       renderSettings();
@@ -1588,32 +1768,37 @@
     // ============================================================
     // ADD SUGGESTION MODAL EVENTS
     // ============================================================
-    addSuggestionBtn.addEventListener('click', () => {
+    addSuggestionBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       addModal.classList.add('active');
       newSuggestionInput.value = '';
-      setTimeout(() => newSuggestionInput.focus(), 100);
+      setTimeout(function() { newSuggestionInput.focus(); }, 150);
     });
 
-    cancelAddBtn.addEventListener('click', () => {
+    cancelAddBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       addModal.classList.remove('active');
     });
 
-    confirmAddBtn.addEventListener('click', () => {
+    confirmAddBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       addSuggestion(newSuggestionInput.value);
     });
 
-    newSuggestionInput.addEventListener('keydown', (e) => {
+    newSuggestionInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
-        addSuggestion(newSuggestionInput.value);
+        addSuggestion(this.value);
       }
       if (e.key === 'Escape') {
         addModal.classList.remove('active');
       }
     });
 
-    addModal.addEventListener('click', (e) => {
-      if (e.target === addModal) addModal.classList.remove('active');
+    addModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        addModal.classList.remove('active');
+      }
     });
 
     // ============================================================
@@ -1621,15 +1806,16 @@
     // ============================================================
     ticketInput.addEventListener('input', function() {
       updateCharCount();
-      const currentValue = this.value;
-      const combinedSelected = state.selectedSuggestions.join(' · ');
+      var currentValue = this.value;
+      var combinedSelected = state.selectedSuggestions.join(' · ');
       
       if (currentValue !== combinedSelected) {
-        let matched = false;
-        for (const text of state.suggestions) {
+        var matched = false;
+        for (var i = 0; i < state.suggestions.length; i++) {
+          var text = state.suggestions[i];
           if (currentValue === text) {
             matched = true;
-            if (!state.selectedSuggestions.includes(text)) {
+            if (state.selectedSuggestions.indexOf(text) === -1) {
               state.selectedSuggestions = [text];
               renderSuggestions();
             }
@@ -1643,7 +1829,8 @@
       }
     });
 
-    clearTextBtn.addEventListener('click', function() {
+    clearTextBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       ticketInput.value = '';
       state.selectedSuggestions = [];
       updateCharCount();
@@ -1655,13 +1842,20 @@
     // RENDER
     // ============================================================
     function renderMainView() {
-      const photo = state.photos[state.selectedIndex];
+      var photo = state.photos[state.selectedIndex];
       if (photo.dataUrl) {
+        liveVideo.style.display = 'none';
         mainPreviewImg.src = photo.dataUrl;
         mainPreviewImg.style.display = 'block';
         mainPlaceholder.style.display = 'none';
         cameraPreview.classList.add('has-image');
+      } else if (state.isVideoRunning) {
+        liveVideo.style.display = 'block';
+        mainPreviewImg.style.display = 'none';
+        mainPlaceholder.style.display = 'none';
+        cameraPreview.classList.remove('has-image');
       } else {
+        liveVideo.style.display = 'none';
         mainPreviewImg.style.display = 'none';
         mainPlaceholder.style.display = 'flex';
         cameraPreview.classList.remove('has-image');
@@ -1671,17 +1865,18 @@
     }
 
     function updateThumbnails() {
-      for (let i = 0; i < 2; i++) {
-        const thumb = thumbnails[i];
-        const photo = state.photos[i];
-        const existingImg = thumb.querySelector('img');
-        const placeholder = thumb.querySelector('.thumb-placeholder');
+      for (var i = 0; i < 2; i++) {
+        var thumb = thumbnails[i];
+        var photo = state.photos[i];
+        var existingImg = thumb.querySelector('img');
+        var placeholder = thumb.querySelector('.thumb-placeholder');
 
         if (photo.dataUrl) {
           if (!existingImg) {
-            const img = document.createElement('img');
+            var img = document.createElement('img');
             img.src = photo.dataUrl;
-            img.alt = `Photo ${i+1}`;
+            img.alt = 'Photo ' + (i+1);
+            img.loading = 'lazy';
             thumb.insertBefore(img, placeholder);
             thumb.classList.add('has-image');
           } else {
@@ -1698,16 +1893,25 @@
     }
 
     // ============================================================
-    // CAPTURE
+    // CAPTURE PHOTO
     // ============================================================
-    async function capturePhoto() {
+    function capturePhoto() {
       if (!state.cameraReady) {
-        await requestCameraPermission();
-        if (!state.cameraReady) return;
+        startCamera().then(function(started) {
+          if (started) {
+            setTimeout(capturePhoto, 300);
+          }
+        });
+        return;
       }
 
-      let slot = -1;
-      for (let i = 0; i < 2; i++) {
+      if (!liveVideo.videoWidth || !liveVideo.videoHeight) {
+        setStatus('⏳ Camera not ready, please wait...', 'warning');
+        return;
+      }
+
+      var slot = -1;
+      for (var i = 0; i < 2; i++) {
         if (!state.photos[i].dataUrl) {
           slot = i;
           break;
@@ -1721,63 +1925,23 @@
       setStatus('📷 Capturing...', 'warning');
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            facingMode: 'environment',
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          }
-        });
+        var canvas = document.createElement('canvas');
+        var videoWidth = liveVideo.videoWidth || 1280;
+        var videoHeight = liveVideo.videoHeight || 720;
+        canvas.width = videoWidth;
+        canvas.height = videoHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(liveVideo, 0, 0, canvas.width, canvas.height);
 
-        const video = document.createElement('video');
-        video.srcObject = stream;
-        video.setAttribute('playsinline', 'true');
-        video.style.width = '100%';
-        video.style.height = 'auto';
-        video.style.maxHeight = '300px';
-        video.style.borderRadius = '16px';
-        video.style.background = '#080e1a';
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        state.photos[slot].dataUrl = dataUrl;
+        state.selectedIndex = slot;
 
-        const origPlaceholder = mainPlaceholder;
-        const origImg = mainPreviewImg;
-        origImg.style.display = 'none';
-        origPlaceholder.style.display = 'none';
-
-        const vidContainer = document.createElement('div');
-        vidContainer.id = 'temp-video';
-        vidContainer.style.width = '100%';
-        vidContainer.appendChild(video);
-        cameraPreview.appendChild(vidContainer);
-
-        video.play().then(() => {
-          setTimeout(() => {
-            const canvas = document.createElement('canvas');
-            const vw = video.videoWidth || 1920;
-            const vh = video.videoHeight || 1080;
-            canvas.width = vw;
-            canvas.height = vh;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-            state.photos[slot].dataUrl = dataUrl;
-            state.selectedIndex = slot;
-
-            vidContainer.remove();
-            renderMainView();
-            setStatus(`✅ Photo ${slot+1} captured!`, 'success');
-            stream.getTracks().forEach(t => t.stop());
-          }, 600);
-        }).catch(err => {
-          setStatus('❌ Video error', 'error');
-          stream.getTracks().forEach(t => t.stop());
-        });
+        renderMainView();
+        setStatus('✅ Photo ' + (slot+1) + ' captured!', 'success');
       } catch (error) {
-        if (error.name === 'NotAllowedError') {
-          setStatus('❌ Camera denied. Tap Allow.', 'error');
-        } else {
-          setStatus('❌ Error: ' + error.message, 'error');
-        }
+        console.error('Capture error:', error);
+        setStatus('❌ Capture error: ' + error.message, 'error');
       }
     }
 
@@ -1785,75 +1949,84 @@
     // RETAKE
     // ============================================================
     function retakePhoto() {
-      const idx = state.selectedIndex;
+      var idx = state.selectedIndex;
       if (!state.photos[idx].dataUrl) {
-        for (let i = 0; i < 2; i++) {
+        for (var i = 0; i < 2; i++) {
           if (state.photos[i].dataUrl) {
             state.selectedIndex = i;
             break;
           }
         }
       }
-      const slot = state.selectedIndex;
+      var slot = state.selectedIndex;
       if (!state.photos[slot].dataUrl) {
         setStatus('⚠️ No photo to retake', 'warning');
         return;
       }
       state.photos[slot].dataUrl = null;
       renderMainView();
-      setStatus(`🔄 Photo ${slot+1} removed`, 'info');
+      if (!state.photos.some(function(p) { return p.dataUrl; }) && state.isVideoRunning) {
+        liveVideo.style.display = 'block';
+        mainPreviewImg.style.display = 'none';
+        mainPlaceholder.style.display = 'none';
+      }
+      setStatus('🔄 Photo ' + (slot+1) + ' removed', 'info');
     }
 
     // ============================================================
     // SEND WHATSAPP
     // ============================================================
     function sendWhatsApp() {
-      const photosWithData = state.photos.filter(p => p.dataUrl);
+      var photosWithData = state.photos.filter(function(p) { return p.dataUrl !== null; });
       if (photosWithData.length === 0) {
         setStatus('⚠️ No photos to send', 'error');
         return;
       }
 
-      const ticket = ticketInput.value || 'Bed Decoration';
-      let message = `🏨 *${ticket}*%0a%0a`;
+      var ticket = ticketInput.value || '';
+      var message = '';
+      if (ticket) {
+        message = '🏨 *' + ticket + '*%0a%0a';
+      } else {
+        message = '🏨 *Bed Decoration Photos*%0a%0a';
+      }
 
-      state.photos.forEach((p, idx) => {
+      state.photos.forEach(function(p, idx) {
         if (p.dataUrl) {
-          message += `📸 Photo ${idx+1}%0a`;
+          message += '📸 Photo ' + (idx+1) + '%0a';
         }
       });
-      message += `%0a✨ Honeymoon bed decor`;
 
-      const firstPhoto = photosWithData[0];
-      const encodedMsg = encodeURIComponent(message);
+      var firstPhoto = photosWithData[0];
+      var encodedMsg = encodeURIComponent(message);
 
       if (navigator.share && firstPhoto.dataUrl) {
         fetch(firstPhoto.dataUrl)
-          .then(res => res.blob())
-          .then(blob => {
-            const file = new File([blob], `bed_photo_1.jpg`, { type: 'image/jpeg' });
-            const shareData = {
-              title: ticket,
-              text: `${ticket} - Bed decoration photos`,
+          .then(function(res) { return res.blob(); })
+          .then(function(blob) {
+            var file = new File([blob], 'bed_photo_1.jpg', { type: 'image/jpeg' });
+            var shareData = {
+              title: ticket || 'Bed Decor',
+              text: ticket || 'Bed decoration photos',
               files: [file]
             };
             if (navigator.canShare && navigator.canShare(shareData)) {
               navigator.share(shareData)
-                .then(() => setStatus('✅ Shared!', 'success'))
-                .catch(err => {
+                .then(function() { setStatus('✅ Shared!', 'success'); })
+                .catch(function(err) {
                   if (err.name !== 'AbortError') setStatus('⚠️ Cancelled', 'warning');
                 });
             } else {
-              window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, '_blank');
+              window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
               setStatus('📤 WhatsApp opened', 'info');
             }
           })
-          .catch(() => {
-            window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, '_blank');
+          .catch(function() {
+            window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
             setStatus('📤 WhatsApp opened', 'info');
           });
       } else {
-        window.open(`https://api.whatsapp.com/send?text=${encodedMsg}`, '_blank');
+        window.open('https://api.whatsapp.com/send?text=' + encodedMsg, '_blank');
         setStatus('📤 WhatsApp opened', 'info');
       }
     }
@@ -1861,15 +2034,16 @@
     // ============================================================
     // THUMBNAIL CLICKS
     // ============================================================
-    thumbnails.forEach((thumb, idx) => {
-      thumb.addEventListener('click', () => {
+    thumbnails.forEach(function(thumb, idx) {
+      thumb.addEventListener('click', function(e) {
+        e.preventDefault();
         if (state.photos[idx].dataUrl) {
           modalImg.src = state.photos[idx].dataUrl;
           modal.classList.add('active');
         } else {
           state.selectedIndex = idx;
           renderMainView();
-          setStatus(`📸 Slot ${idx+1} selected`, 'info');
+          setStatus('📸 Slot ' + (idx+1) + ' selected', 'info');
         }
       });
     });
@@ -1877,9 +2051,44 @@
     // ============================================================
     // MODAL
     // ============================================================
-    modalClose.addEventListener('click', () => modal.classList.remove('active'));
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.classList.remove('active');
+    modalClose.addEventListener('click', function(e) {
+      e.preventDefault();
+      modal.classList.remove('active');
+    });
+    modal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        modal.classList.remove('active');
+      }
+    });
+
+    // ============================================================
+    // PWA INSTALL
+    // ============================================================
+    var deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.classList.remove('hidden');
+    });
+
+    installBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function(result) {
+          if (result.outcome === 'accepted') {
+            setStatus('✅ App installed!', 'success');
+          }
+          deferredPrompt = null;
+          installBtn.classList.add('hidden');
+        });
+      }
+    });
+
+    window.addEventListener('appinstalled', function() {
+      setStatus('🎉 App installed successfully!', 'success');
+      installBtn.classList.add('hidden');
     });
 
     // ============================================================
@@ -1888,6 +2097,26 @@
     captureBtn.addEventListener('click', capturePhoto);
     retakeBtn.addEventListener('click', retakePhoto);
     sendBtn.addEventListener('click', sendWhatsApp);
+
+    // Handle visibility change - restart camera if needed
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible') {
+        if (!state.isVideoRunning && state.cameraReady) {
+          startCamera();
+        }
+      }
+    });
+
+    // ============================================================
+    // iOS Safari - user interaction handler
+    // ============================================================
+    var touchHandler = function() {
+      if (!state.isVideoRunning && !state.cameraReady) {
+        startCamera();
+      }
+      document.removeEventListener('touchstart', touchHandler);
+    };
+    document.addEventListener('touchstart', touchHandler, { once: true, passive: true });
 
     // ============================================================
     // INIT
@@ -1900,21 +2129,16 @@
       updateCharCount();
       updateSettingsBadge();
       
-      if (state.suggestions.length === 0) {
-        setStatus('📝 Add suggestions with the "➕ Add" button', 'info');
-      } else {
-        setStatus('📸 Tap capture · ⚙️ to manage suggestions', 'info');
-      }
+      setStatus('📷 Starting camera...', 'info');
       
-      if (navigator.permissions && navigator.permissions.query) {
-        try {
-          navigator.permissions.query({ name: 'camera' }).then(permStatus => {
-            if (permStatus.state === 'granted') {
-              requestCameraPermission();
-            }
-          });
-        } catch (e) {}
-      }
+      // Auto-start camera on load with a small delay for iOS
+      setTimeout(function() {
+        startCamera().then(function(started) {
+          if (!started) {
+            setStatus('📷 Tap "Allow Camera" to start', 'warning');
+          }
+        });
+      }, 300);
     }
 
     init();
