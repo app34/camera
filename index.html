@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui">
   <title>BedDecor · Camera</title>
   
-  <!-- Force portrait orientation -->
-  <meta name="screen-orientation" content="portrait">
-  
   <meta name="theme-color" content="#0f1625">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -154,33 +151,6 @@
       gap: 6px;
       flex-shrink: 0;
     }
-    
-    /* Orientation Toggle Button */
-    .orientation-toggle {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid #2d3d60;
-      border-radius: 30px;
-      padding: 4px 10px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      color: #6a7ea8;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      touch-action: manipulation;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
-      -webkit-touch-callout: none;
-      user-select: none;
-    }
-    .orientation-toggle:active { transform: scale(0.92); }
-    .orientation-toggle.active { 
-      border-color: #ff5e7c; 
-      color: #ff8aa3;
-      background: rgba(255,94,124,0.08);
-    }
-    .orientation-toggle .icon { font-size: 0.8rem; }
     
     .perm-btn-sm {
       background: rgba(59,130,246,0.12);
@@ -544,6 +514,41 @@
       -webkit-transform: rotate(0deg);
       transform: rotate(0deg);
     }
+    
+    /* Orientation button */
+    .orientation-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .btn-orientation {
+      padding: 4px 14px;
+      border: 1px solid #2d3d60;
+      border-radius: 20px;
+      background: #1a2338;
+      color: #6a7ea8;
+      font-size: 0.6rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-orientation:active { transform: scale(0.92); }
+    .btn-orientation.active {
+      background: rgba(255,94,124,0.15);
+      border-color: #ff5e7c;
+      color: #ff8aa3;
+      box-shadow: 0 0 16px rgba(255,94,124,0.08);
+    }
+    .btn-orientation .icon { font-size: 0.7rem; }
     
     .camera-controls {
       display: flex;
@@ -1241,7 +1246,6 @@
       .btn-capture .inner-circle { width: 44px; height: 44px; }
       .suggestion-chip { font-size: 0.5rem; padding: 2px 10px; }
       .suggestion-chip .chip-text { max-width: 70px; }
-      .orientation-toggle { font-size: 0.5rem; padding: 3px 8px; }
     }
     @media (max-width: 360px) {
       .app { padding: 8px 8px 12px; border-radius: 28px; max-height: 640px; }
@@ -1254,7 +1258,6 @@
       .suggestions { gap: 3px; }
       .suggestion-chip { font-size: 0.45rem; padding: 2px 8px; }
       .suggestion-chip .chip-text { max-width: 50px; }
-      .orientation-toggle { font-size: 0.45rem; padding: 2px 6px; }
     }
     @media (max-height: 700px) {
       .camera-preview { max-height: 280px; min-height: 160px; }
@@ -1272,7 +1275,7 @@
 </head>
 <body>
 <div class="app" id="app">
-  <span class="version-badge" id="versionBadge">v1.0.6</span>
+  <span class="version-badge" id="versionBadge">v1.0.3</span>
   
   <div class="top-bar">
     <div class="left-group">
@@ -1283,9 +1286,6 @@
     </div>
     <div class="right-group">
       <button class="install-btn hidden" id="installBtn"><span class="icon">📲</span> Install</button>
-      <button class="orientation-toggle" id="orientationToggle" title="Toggle orientation">
-        <span class="icon">🔄</span> <span id="orientationLabel">Portrait</span>
-      </button>
       <button class="settings-btn" id="settingsBtn" title="Manage Suggestions">⚙️<span class="badge-dot" id="settingsBadge"></span></button>
       <button class="perm-btn-sm" id="permissionBtn"><span class="icon">📷</span><span id="permText">Allow Camera</span></button>
     </div>
@@ -1319,6 +1319,16 @@
       </div>
       <video id="liveVideo" autoplay playsinline muted webkit-playsinline style="display:none;"></video>
       <img id="mainPreviewImg" style="display:none;" alt="Preview">
+    </div>
+
+    <!-- Orientation Controls -->
+    <div class="orientation-controls">
+      <button class="btn-orientation active" id="orientLandscape" data-mode="landscape">
+        <span class="icon">📱</span> Landscape
+      </button>
+      <button class="btn-orientation" id="orientPortrait" data-mode="portrait">
+        <span class="icon">📱</span> Portrait
+      </button>
     </div>
 
     <div class="camera-controls">
@@ -1400,9 +1410,9 @@
     "use strict";
 
     // ============================================================
-    // APP VERSION - v1.0.6
+    // APP VERSION - v1.0.3
     // ============================================================
-    var APP_VERSION = '1.0.6';
+    var APP_VERSION = '1.0.3';
     var STORAGE_KEY = 'beddecor_suggestions';
     var VERSION_KEY = 'beddecor_version';
 
@@ -1420,7 +1430,7 @@
       isVideoRunning: false,
       isInitializing: false,
       isSending: false,
-      isPortrait: true
+      orientation: 'landscape' // 'landscape' or 'portrait'
     };
 
     // DOM REFS
@@ -1464,8 +1474,10 @@
     var settingsBadge = document.getElementById('settingsBadge');
     var versionBadge = document.getElementById('versionBadge');
     var installBtn = document.getElementById('installBtn');
-    var orientationToggle = document.getElementById('orientationToggle');
-    var orientationLabel = document.getElementById('orientationLabel');
+    
+    // Orientation buttons
+    var orientLandscape = document.getElementById('orientLandscape');
+    var orientPortrait = document.getElementById('orientPortrait');
 
     // ============================================================
     // VERSION & STORAGE
@@ -1558,78 +1570,54 @@
     }
 
     // ============================================================
-    // ORIENTATION TOGGLE
+    // ORIENTATION
     // ============================================================
-    function toggleOrientation() {
-      state.isPortrait = !state.isPortrait;
+    function setOrientation(mode) {
+      state.orientation = mode;
       
-      if (state.isPortrait) {
-        orientationLabel.textContent = 'Portrait';
-        orientationToggle.classList.remove('active');
-        document.querySelector('meta[name="screen-orientation"]').content = 'portrait';
-        // Restart camera with portrait settings
-        if (state.isVideoRunning) {
-          restartCamera('portrait');
-        }
-        setStatus('📱 Portrait mode enabled', 'info');
+      // Update button states
+      orientLandscape.classList.toggle('active', mode === 'landscape');
+      orientPortrait.classList.toggle('active', mode === 'portrait');
+      
+      // Force aspect ratio for camera
+      restartCameraWithOrientation(mode);
+    }
+    
+    function restartCameraWithOrientation(mode) {
+      if (state.isVideoRunning) {
+        // Stop current stream
+        stopCamera();
+        // Restart with new orientation
+        setTimeout(function() {
+          startCameraWithOrientation(mode);
+        }, 300);
       } else {
-        orientationLabel.textContent = 'Landscape';
-        orientationToggle.classList.add('active');
-        document.querySelector('meta[name="screen-orientation"]').content = 'landscape';
-        // Restart camera with landscape settings
-        if (state.isVideoRunning) {
-          restartCamera('landscape');
-        }
-        setStatus('📱 Landscape mode enabled', 'info');
+        startCameraWithOrientation(mode);
       }
     }
-
-    orientationToggle.addEventListener('click', toggleOrientation);
-
-    // ============================================================
-    // CAMERA
-    // ============================================================
-    function restartCamera(mode) {
-      // Stop current camera
-      if (state.videoStream) {
-        state.videoStream.getTracks().forEach(function(t) {
-          try { t.stop(); } catch (e) {}
-        });
-        state.videoStream = null;
-      }
-      state.isVideoRunning = false;
-      state.cameraReady = false;
-      liveVideo.style.display = 'none';
-      
-      // Start with new orientation
-      setTimeout(function() {
-        startCamera(mode);
-      }, 200);
-    }
-
-    function startCamera(mode) {
-      if (state.isVideoRunning) return Promise.resolve(true);
-      if (state.isInitializing) return Promise.resolve(false);
+    
+    function startCameraWithOrientation(mode) {
+      if (state.isVideoRunning) return;
+      if (state.isInitializing) return;
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         setStatus('❌ Camera not supported', 'error');
-        return Promise.resolve(false);
+        return;
       }
+
+      var isLandscape = (mode === 'landscape');
+      var width = isLandscape ? 1280 : 720;
+      var height = isLandscape ? 720 : 1280;
 
       state.isInitializing = true;
       setStatus('📷 Starting camera...', 'warning');
 
-      // Determine orientation
-      var isPortrait = mode ? mode === 'portrait' : state.isPortrait;
-      var width = isPortrait ? 720 : 1280;
-      var height = isPortrait ? 1280 : 720;
-
-      return navigator.mediaDevices.getUserMedia({
+      navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: 'environment',
           width: { ideal: width },
           height: { ideal: height },
-          aspectRatio: { ideal: isPortrait ? 9/16 : 16/9 }
+          aspectRatio: { ideal: isLandscape ? 16/9 : 9/16 }
         },
         audio: false
       })
@@ -1662,7 +1650,6 @@
       })
       .then(function() {
         return liveVideo.play().catch(function() {
-          console.log('Autoplay prevented, waiting for user interaction');
           setStatus('📱 Tap the screen to start camera', 'warning');
           return Promise.resolve();
         });
@@ -1676,7 +1663,6 @@
         permText.textContent = '✅ Ready';
         state.isInitializing = false;
         renderMainView();
-        return true;
       })
       .catch(function(error) {
         console.error('Camera error:', error);
@@ -1695,8 +1681,25 @@
           permBtn.className = 'perm-btn-sm denied';
           permText.textContent = '❌ Error';
         }
-        return false;
       });
+    }
+
+    // Orientation button events
+    orientLandscape.addEventListener('click', function() {
+      if (state.orientation === 'landscape') return;
+      setOrientation('landscape');
+    });
+
+    orientPortrait.addEventListener('click', function() {
+      if (state.orientation === 'portrait') return;
+      setOrientation('portrait');
+    });
+
+    // ============================================================
+    // CAMERA
+    // ============================================================
+    function startCamera() {
+      startCameraWithOrientation(state.orientation || 'landscape');
     }
 
     function stopCamera() {
@@ -2218,11 +2221,20 @@
     }
 
     // ============================================================
-    // SEND WHATSAPP - DIRECT OPEN
+    // SEND WHATSAPP - ORIGINAL VERSION (UNCHANGED)
     // ============================================================
     function sendWhatsApp() {
-      var photosToSend = state.photos.filter(function(p) { return p.dataUrl; });
-      
+      // Collect all photos with data
+      var photosToSend = [];
+      for (var i = 0; i < state.photos.length; i++) {
+        if (state.photos[i].dataUrl) {
+          photosToSend.push({
+            index: i,
+            dataUrl: state.photos[i].dataUrl
+          });
+        }
+      }
+
       if (photosToSend.length === 0) {
         setStatus('⚠️ No photos to send', 'error');
         return;
@@ -2230,29 +2242,68 @@
 
       state.isSending = true;
       sendBtn.disabled = true;
+      setStatus('📤 Preparing ' + photosToSend.length + ' photo(s)...', 'warning');
 
-      var ticket = ticketInput.value.trim() || 'Bed Decoration Photos';
-      var total = photosToSend.length;
-      
-      var message = '🏨 *' + ticket + (total > 1 ? ' (' + total + ' photos)' : '') + '*';
-      var encodedMsg = encodeURIComponent(message);
+      var ticket = ticketInput.value || '';
+      var totalPhotos = photosToSend.length;
 
-      var whatsappUrl = 'https://api.whatsapp.com/send?text=' + encodedMsg;
-      
-      var newWindow = window.open(whatsappUrl, '_blank');
-      
-      if (newWindow) {
-        setStatus('📤 WhatsApp opened - attach your ' + total + ' photo(s)', 'success');
+      // Build clean message without extra text
+      var messageText = ticket || 'Bed Decoration Photos';
+      var encodedMsg = encodeURIComponent('🏨 *' + messageText + '*');
+
+      // Try to share ALL photos together
+      if (navigator.share) {
+        var filePromises = photosToSend.map(function(photo) {
+          return fetch(photo.dataUrl)
+            .then(function(res) { return res.blob(); })
+            .then(function(blob) {
+              var num = photo.index + 1;
+              return new File([blob], 'photo_' + num + '.jpg', { type: 'image/jpeg' });
+            });
+        });
+
+        Promise.all(filePromises).then(function(files) {
+          var shareData = {
+            title: 'Bed Decor',
+            text: messageText,
+            files: files
+          };
+
+          if (navigator.canShare && navigator.canShare(shareData)) {
+            navigator.share(shareData)
+              .then(function() {
+                state.isSending = false;
+                sendBtn.disabled = false;
+                updateButtons();
+                setStatus('✅ ' + totalPhotos + ' photo(s) shared!', 'success');
+              })
+              .catch(function(err) {
+                if (err.name !== 'AbortError') {
+                  fallbackToWhatsApp();
+                } else {
+                  state.isSending = false;
+                  sendBtn.disabled = false;
+                  updateButtons();
+                  setStatus('⚠️ Cancelled', 'warning');
+                }
+              });
+          } else {
+            fallbackToWhatsApp();
+          }
+        }).catch(function() { fallbackToWhatsApp(); });
       } else {
-        window.location.href = whatsappUrl;
-        setStatus('📤 Opening WhatsApp...', 'info');
+        fallbackToWhatsApp();
       }
 
-      setTimeout(function() {
+      function fallbackToWhatsApp() {
+        // Open WhatsApp with the message
+        var url = 'https://api.whatsapp.com/send?text=' + encodedMsg;
+        window.open(url, '_blank');
+        setStatus('📤 WhatsApp opened - attach your photos', 'info');
         state.isSending = false;
         sendBtn.disabled = false;
         updateButtons();
-      }, 3000);
+      }
     }
 
     // ============================================================
@@ -2358,19 +2409,17 @@
       checkVersion();
       loadSuggestions();
       
+      // No default suggestions - user adds their own
+      
       renderSuggestions();
       renderMainView();
       updateCharCount();
       updateSettingsBadge();
       
-      // Start with portrait mode by default
-      state.isPortrait = true;
-      orientationLabel.textContent = 'Portrait';
-      
       setStatus('📷 Starting camera...', 'info');
       
       setTimeout(function() {
-        startCamera('portrait').then(function(started) {
+        startCamera().then(function(started) {
           if (!started) {
             setStatus('📷 Tap "Allow Camera" to start', 'warning');
           }
