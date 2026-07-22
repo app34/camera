@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui">
   <title>BedDecor · Camera</title>
   
+  <!-- Force portrait orientation -->
+  <meta name="screen-orientation" content="portrait">
+  
   <meta name="theme-color" content="#0f1625">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,6 +17,21 @@
   
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js')
+          .then(function(registration) {
+            console.log('Service Worker registered successfully');
+          })
+          .catch(function(err) {
+            console.log('Service Worker registration failed:', err);
+          });
+      });
+    }
+  </script>
   
   <style>
     * {
@@ -136,6 +154,33 @@
       gap: 6px;
       flex-shrink: 0;
     }
+    
+    /* Orientation Toggle Button */
+    .orientation-toggle {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #2d3d60;
+      border-radius: 30px;
+      padding: 4px 10px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: #6a7ea8;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      -webkit-touch-callout: none;
+      user-select: none;
+    }
+    .orientation-toggle:active { transform: scale(0.92); }
+    .orientation-toggle.active { 
+      border-color: #ff5e7c; 
+      color: #ff8aa3;
+      background: rgba(255,94,124,0.08);
+    }
+    .orientation-toggle .icon { font-size: 0.8rem; }
     
     .perm-btn-sm {
       background: rgba(59,130,246,0.12);
@@ -496,26 +541,8 @@
       border-radius: 22px;
       display: block;
       background: #080e1a;
-    }
-    
-    /* Camera Rotation Button */
-    .btn-rotate {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 2px solid #6a7ea8;
-      color: #6a7ea8;
-      font-size: 1.4rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .btn-rotate:active {
-      transform: scale(0.9) rotate(45deg);
-      background: rgba(255,255,255,0.15);
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
     }
     
     .camera-controls {
@@ -1214,6 +1241,7 @@
       .btn-capture .inner-circle { width: 44px; height: 44px; }
       .suggestion-chip { font-size: 0.5rem; padding: 2px 10px; }
       .suggestion-chip .chip-text { max-width: 70px; }
+      .orientation-toggle { font-size: 0.5rem; padding: 3px 8px; }
     }
     @media (max-width: 360px) {
       .app { padding: 8px 8px 12px; border-radius: 28px; max-height: 640px; }
@@ -1226,6 +1254,7 @@
       .suggestions { gap: 3px; }
       .suggestion-chip { font-size: 0.45rem; padding: 2px 8px; }
       .suggestion-chip .chip-text { max-width: 50px; }
+      .orientation-toggle { font-size: 0.45rem; padding: 2px 6px; }
     }
     @media (max-height: 700px) {
       .camera-preview { max-height: 280px; min-height: 160px; }
@@ -1243,7 +1272,7 @@
 </head>
 <body>
 <div class="app" id="app">
-  <span class="version-badge" id="versionBadge">v1.0.3</span>
+  <span class="version-badge" id="versionBadge">v1.0.6</span>
   
   <div class="top-bar">
     <div class="left-group">
@@ -1254,6 +1283,9 @@
     </div>
     <div class="right-group">
       <button class="install-btn hidden" id="installBtn"><span class="icon">📲</span> Install</button>
+      <button class="orientation-toggle" id="orientationToggle" title="Toggle orientation">
+        <span class="icon">🔄</span> <span id="orientationLabel">Portrait</span>
+      </button>
       <button class="settings-btn" id="settingsBtn" title="Manage Suggestions">⚙️<span class="badge-dot" id="settingsBadge"></span></button>
       <button class="perm-btn-sm" id="permissionBtn"><span class="icon">📷</span><span id="permText">Allow Camera</span></button>
     </div>
@@ -1291,7 +1323,6 @@
 
     <div class="camera-controls">
       <button class="btn-action danger" id="retakeBtn" disabled><span class="icon">🔄</span> Retake</button>
-      <button class="btn-rotate" id="rotateBtn" title="Rotate Camera">🔄</button>
       <button class="btn-capture" id="captureBtn"><span class="ripple"></span><div class="inner-circle"></div></button>
       <button class="btn-action whatsapp" id="sendBtn" disabled><span class="icon">💬</span> Send</button>
     </div>
@@ -1368,7 +1399,10 @@
   (function() {
     "use strict";
 
-    var APP_VERSION = '1.0.3';
+    // ============================================================
+    // APP VERSION - v1.0.6
+    // ============================================================
+    var APP_VERSION = '1.0.6';
     var STORAGE_KEY = 'beddecor_suggestions';
     var VERSION_KEY = 'beddecor_version';
 
@@ -1386,7 +1420,7 @@
       isVideoRunning: false,
       isInitializing: false,
       isSending: false,
-      facingMode: 'environment'
+      isPortrait: true
     };
 
     // DOM REFS
@@ -1430,9 +1464,12 @@
     var settingsBadge = document.getElementById('settingsBadge');
     var versionBadge = document.getElementById('versionBadge');
     var installBtn = document.getElementById('installBtn');
-    var rotateBtn = document.getElementById('rotateBtn'); // new
+    var orientationToggle = document.getElementById('orientationToggle');
+    var orientationLabel = document.getElementById('orientationLabel');
 
-    // VERSION & STORAGE (unchanged)
+    // ============================================================
+    // VERSION & STORAGE
+    // ============================================================
     function checkVersion() {
       try {
         var savedVersion = localStorage.getItem(VERSION_KEY);
@@ -1487,7 +1524,9 @@
       }
     }
 
+    // ============================================================
     // HELPERS
+    // ============================================================
     function setStatus(msg, type) {
       type = type || 'info';
       statusText.textContent = msg;
@@ -1518,8 +1557,57 @@
       charCount.textContent = ticketInput.value.length;
     }
 
-    // CAMERA with rotation support
-    function startCamera() {
+    // ============================================================
+    // ORIENTATION TOGGLE
+    // ============================================================
+    function toggleOrientation() {
+      state.isPortrait = !state.isPortrait;
+      
+      if (state.isPortrait) {
+        orientationLabel.textContent = 'Portrait';
+        orientationToggle.classList.remove('active');
+        document.querySelector('meta[name="screen-orientation"]').content = 'portrait';
+        // Restart camera with portrait settings
+        if (state.isVideoRunning) {
+          restartCamera('portrait');
+        }
+        setStatus('📱 Portrait mode enabled', 'info');
+      } else {
+        orientationLabel.textContent = 'Landscape';
+        orientationToggle.classList.add('active');
+        document.querySelector('meta[name="screen-orientation"]').content = 'landscape';
+        // Restart camera with landscape settings
+        if (state.isVideoRunning) {
+          restartCamera('landscape');
+        }
+        setStatus('📱 Landscape mode enabled', 'info');
+      }
+    }
+
+    orientationToggle.addEventListener('click', toggleOrientation);
+
+    // ============================================================
+    // CAMERA
+    // ============================================================
+    function restartCamera(mode) {
+      // Stop current camera
+      if (state.videoStream) {
+        state.videoStream.getTracks().forEach(function(t) {
+          try { t.stop(); } catch (e) {}
+        });
+        state.videoStream = null;
+      }
+      state.isVideoRunning = false;
+      state.cameraReady = false;
+      liveVideo.style.display = 'none';
+      
+      // Start with new orientation
+      setTimeout(function() {
+        startCamera(mode);
+      }, 200);
+    }
+
+    function startCamera(mode) {
       if (state.isVideoRunning) return Promise.resolve(true);
       if (state.isInitializing) return Promise.resolve(false);
 
@@ -1531,12 +1619,17 @@
       state.isInitializing = true;
       setStatus('📷 Starting camera...', 'warning');
 
+      // Determine orientation
+      var isPortrait = mode ? mode === 'portrait' : state.isPortrait;
+      var width = isPortrait ? 720 : 1280;
+      var height = isPortrait ? 1280 : 720;
+
       return navigator.mediaDevices.getUserMedia({
         video: { 
-          facingMode: state.facingMode,
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          aspectRatio: { ideal: 16/9 }
+          facingMode: 'environment',
+          width: { ideal: width },
+          height: { ideal: height },
+          aspectRatio: { ideal: isPortrait ? 9/16 : 16/9 }
         },
         audio: false
       })
@@ -1627,21 +1720,12 @@
       startCamera();
     });
 
-    // Rotate Button
-    rotateBtn.addEventListener('click', function() {
-      state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
-      if (state.videoStream) {
-        state.videoStream.getTracks().forEach(t => t.stop());
-      }
-      startCamera();
-      setStatus('🔄 Camera switched', 'info');
-    });
-
-    // SUGGESTIONS, SETTINGS, RENDER, CAPTURE, RETAKE, SEND (your original code)
-
+    // ============================================================
+    // SUGGESTIONS
+    // ============================================================
     function renderSuggestions() {
-      // your original code
       suggestionsContainer.innerHTML = '';
+      
       if (state.suggestions.length === 0) {
         var empty = document.createElement('div');
         empty.className = 'empty-suggestions';
@@ -1649,11 +1733,14 @@
         suggestionsContainer.appendChild(empty);
         return;
       }
+
       state.suggestions.forEach(function(text) {
         var chip = document.createElement('div');
         chip.className = 'suggestion-chip';
         var isSelected = state.selectedSuggestions.indexOf(text) !== -1;
-        if (isSelected) chip.classList.add('selected');
+        if (isSelected) {
+          chip.classList.add('selected');
+        }
         chip.innerHTML = '<span class="chip-text">' + text + '</span><span class="chip-check">✓</span>';
         chip.addEventListener('click', function(e) {
           e.preventDefault();
@@ -1689,9 +1776,12 @@
       }
     }
 
+    // ============================================================
+    // SETTINGS
+    // ============================================================
     function renderSettings() {
-      // your original renderSettings
       settingsList.innerHTML = '';
+      
       if (state.suggestions.length === 0) {
         var empty = document.createElement('div');
         empty.className = 'settings-empty';
@@ -1700,9 +1790,301 @@
         deleteSelectedBtn.disabled = true;
         return;
       }
-      // (rest of renderSettings, saveEdit, deleteSuggestion, updateDeleteButton, addSuggestion are your original)
+      
+      state.suggestions.forEach(function(text, index) {
+        var item = document.createElement('div');
+        item.className = 'settings-item';
+        if (state.editingIndex === index) {
+          item.classList.add('editing');
+        }
+        
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'item-checkbox';
+        checkbox.dataset.index = index;
+        checkbox.addEventListener('change', updateDeleteButton);
+        checkbox.addEventListener('touchstart', function(e) {
+          e.stopPropagation();
+        });
+        
+        var textSpan = document.createElement('span');
+        textSpan.className = 'item-text';
+        textSpan.textContent = text;
+        
+        var actions = document.createElement('div');
+        actions.className = 'item-actions';
+        
+        if (state.editingIndex === index) {
+          var editInput = document.createElement('input');
+          editInput.type = 'text';
+          editInput.className = 'edit-input';
+          editInput.value = text;
+          editInput.maxLength = 50;
+          editInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') saveEdit(index, editInput.value);
+            if (e.key === 'Escape') { state.editingIndex = -1; renderSettings(); }
+          });
+          
+          var saveBtn = document.createElement('button');
+          saveBtn.className = 'edit-save-btn';
+          saveBtn.textContent = 'Save';
+          saveBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            saveEdit(index, editInput.value);
+          });
+          
+          item.appendChild(editInput);
+          item.appendChild(saveBtn);
+          setTimeout(function() { editInput.focus(); }, 100);
+        } else {
+          var editBtn = document.createElement('button');
+          editBtn.className = 'edit-btn';
+          editBtn.textContent = '✏️';
+          editBtn.title = 'Edit';
+          editBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            state.editingIndex = index;
+            renderSettings();
+          });
+          
+          var deleteBtn = document.createElement('button');
+          deleteBtn.className = 'delete-btn';
+          deleteBtn.textContent = '🗑️';
+          deleteBtn.title = 'Delete';
+          deleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Remove "' + text + '" from suggestions?')) {
+              deleteSuggestion(index);
+            }
+          });
+          
+          actions.appendChild(editBtn);
+          actions.appendChild(deleteBtn);
+          item.appendChild(checkbox);
+          item.appendChild(textSpan);
+          item.appendChild(actions);
+        }
+        
+        settingsList.appendChild(item);
+      });
+      
+      updateDeleteButton();
     }
 
+    function saveEdit(index, newText) {
+      var trimmed = newText.trim();
+      if (!trimmed) {
+        setStatus('⚠️ Please enter a valid suggestion', 'warning');
+        return;
+      }
+      var oldText = state.suggestions[index];
+      if (trimmed !== oldText && state.suggestions.indexOf(trimmed) !== -1) {
+        setStatus('⚠️ Suggestion already exists', 'warning');
+        return;
+      }
+      state.suggestions[index] = trimmed;
+      var selIndex = state.selectedSuggestions.indexOf(oldText);
+      if (selIndex !== -1) {
+        state.selectedSuggestions[selIndex] = trimmed;
+      }
+      state.editingIndex = -1;
+      saveSuggestions();
+      renderSettings();
+      renderSuggestions();
+      setStatus('✅ Updated suggestion', 'success');
+    }
+
+    function deleteSuggestion(index) {
+      var text = state.suggestions[index];
+      state.suggestions.splice(index, 1);
+      var selIndex = state.selectedSuggestions.indexOf(text);
+      if (selIndex !== -1) {
+        state.selectedSuggestions.splice(selIndex, 1);
+      }
+      if (state.editingIndex === index) state.editingIndex = -1;
+      saveSuggestions();
+      renderSettings();
+      renderSuggestions();
+      setStatus('🗑️ Removed: "' + text + '"', 'info');
+    }
+
+    function updateDeleteButton() {
+      var checked = settingsList.querySelectorAll('.item-checkbox:checked');
+      deleteSelectedBtn.disabled = checked.length === 0;
+      if (checked.length > 0) {
+        deleteSelectedBtn.textContent = '🗑️ Delete Selected (' + checked.length + ')';
+      } else {
+        deleteSelectedBtn.textContent = '🗑️ Delete Selected';
+      }
+    }
+
+    function addSuggestion(text) {
+      var trimmed = text.trim();
+      if (!trimmed) {
+        setStatus('⚠️ Please enter a suggestion', 'error');
+        return;
+      }
+      if (state.suggestions.indexOf(trimmed) !== -1) {
+        setStatus('⚠️ Suggestion already exists', 'warning');
+        return;
+      }
+      state.suggestions.push(trimmed);
+      saveSuggestions();
+      renderSuggestions();
+      renderSettings();
+      setStatus('✅ Added: "' + trimmed + '"', 'success');
+      newSuggestionInput.value = '';
+      addModal.classList.remove('active');
+    }
+
+    // ============================================================
+    // EVENTS
+    // ============================================================
+    settingsBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      state.editingIndex = -1;
+      renderSettings();
+      settingsModal.classList.add('active');
+      this.classList.add('active');
+    });
+
+    closeSettingsBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      settingsModal.classList.remove('active');
+      settingsBtn.classList.remove('active');
+    });
+
+    doneSettingsBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      settingsModal.classList.remove('active');
+      settingsBtn.classList.remove('active');
+      setStatus('✅ Settings saved', 'success');
+    });
+
+    deleteSelectedBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      var checked = settingsList.querySelectorAll('.item-checkbox:checked');
+      if (checked.length === 0) return;
+      
+      var indices = Array.from(checked).map(function(cb) { return parseInt(cb.dataset.index); }).sort(function(a,b) { return b - a; });
+      var texts = indices.map(function(i) { return state.suggestions[i]; });
+      
+      if (confirm('Delete ' + texts.length + ' suggestion(s)?')) {
+        indices.forEach(function(i) {
+          var text = state.suggestions[i];
+          state.suggestions.splice(i, 1);
+          var selIndex = state.selectedSuggestions.indexOf(text);
+          if (selIndex !== -1) {
+            state.selectedSuggestions.splice(selIndex, 1);
+          }
+        });
+        saveSuggestions();
+        renderSettings();
+        renderSuggestions();
+        setStatus('🗑️ Deleted ' + texts.length + ' suggestion(s)', 'info');
+      }
+    });
+
+    clearAllDataBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      clearDataModal.classList.add('active');
+    });
+
+    cancelClearBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      clearDataModal.classList.remove('active');
+    });
+
+    confirmClearBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      clearAllData();
+      clearDataModal.classList.remove('active');
+      renderSettings();
+    });
+
+    settingsModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        settingsModal.classList.remove('active');
+        settingsBtn.classList.remove('active');
+      }
+    });
+
+    clearDataModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        clearDataModal.classList.remove('active');
+      }
+    });
+
+    addSuggestionBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      addModal.classList.add('active');
+      newSuggestionInput.value = '';
+      setTimeout(function() { newSuggestionInput.focus(); }, 150);
+    });
+
+    cancelAddBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      addModal.classList.remove('active');
+    });
+
+    confirmAddBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      addSuggestion(newSuggestionInput.value);
+    });
+
+    newSuggestionInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addSuggestion(this.value);
+      }
+      if (e.key === 'Escape') {
+        addModal.classList.remove('active');
+      }
+    });
+
+    addModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        addModal.classList.remove('active');
+      }
+    });
+
+    ticketInput.addEventListener('input', function() {
+      updateCharCount();
+      var currentValue = this.value;
+      var combinedSelected = state.selectedSuggestions.join(' · ');
+      
+      if (currentValue !== combinedSelected) {
+        var matched = false;
+        for (var i = 0; i < state.suggestions.length; i++) {
+          var text = state.suggestions[i];
+          if (currentValue === text) {
+            matched = true;
+            if (state.selectedSuggestions.indexOf(text) === -1) {
+              state.selectedSuggestions = [text];
+              renderSuggestions();
+            }
+            break;
+          }
+        }
+        if (!matched && currentValue === '') {
+          state.selectedSuggestions = [];
+          renderSuggestions();
+        }
+      }
+    });
+
+    clearTextBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      ticketInput.value = '';
+      state.selectedSuggestions = [];
+      updateCharCount();
+      renderSuggestions();
+      setStatus('🗑️ Message cleared', 'info');
+    });
+
+    // ============================================================
+    // RENDER
+    // ============================================================
     function renderMainView() {
       var photo = state.photos[state.selectedIndex];
       if (photo.dataUrl) {
@@ -1757,10 +2139,15 @@
       }
     }
 
+    // ============================================================
+    // CAPTURE
+    // ============================================================
     function capturePhoto() {
       if (!state.cameraReady) {
         startCamera().then(function(started) {
-          if (started) setTimeout(capturePhoto, 300);
+          if (started) {
+            setTimeout(capturePhoto, 300);
+          }
         });
         return;
       }
@@ -1830,8 +2217,12 @@
       setStatus('🔄 Photo ' + (slot+1) + ' removed', 'info');
     }
 
+    // ============================================================
+    // SEND WHATSAPP - DIRECT OPEN
+    // ============================================================
     function sendWhatsApp() {
       var photosToSend = state.photos.filter(function(p) { return p.dataUrl; });
+      
       if (photosToSend.length === 0) {
         setStatus('⚠️ No photos to send', 'error');
         return;
@@ -1839,23 +2230,34 @@
 
       state.isSending = true;
       sendBtn.disabled = true;
-      setStatus('📤 Preparing ' + photosToSend.length + ' photo(s)...', 'warning');
 
-      var ticket = ticketInput.value || '';
-      var totalPhotos = photosToSend.length;
-      var messageText = ticket || 'Bed Decoration Photos';
-      var encodedMsg = encodeURIComponent('🏨 *' + messageText + '*');
+      var ticket = ticketInput.value.trim() || 'Bed Decoration Photos';
+      var total = photosToSend.length;
+      
+      var message = '🏨 *' + ticket + (total > 1 ? ' (' + total + ' photos)' : '') + '*';
+      var encodedMsg = encodeURIComponent(message);
 
-      var url = 'https://api.whatsapp.com/send?text=' + encodedMsg;
-      window.open(url, '_blank');
+      var whatsappUrl = 'https://api.whatsapp.com/send?text=' + encodedMsg;
+      
+      var newWindow = window.open(whatsappUrl, '_blank');
+      
+      if (newWindow) {
+        setStatus('📤 WhatsApp opened - attach your ' + total + ' photo(s)', 'success');
+      } else {
+        window.location.href = whatsappUrl;
+        setStatus('📤 Opening WhatsApp...', 'info');
+      }
 
-      setStatus('📤 WhatsApp opened - attach your photos', 'info');
-      state.isSending = false;
-      sendBtn.disabled = false;
-      updateButtons();
+      setTimeout(function() {
+        state.isSending = false;
+        sendBtn.disabled = false;
+        updateButtons();
+      }, 3000);
     }
 
-    // Thumbnails, Modals, PWA, Event Listeners, Init (your original)
+    // ============================================================
+    // THUMBNAILS
+    // ============================================================
     thumbnails.forEach(function(thumb, idx) {
       thumb.addEventListener('click', function(e) {
         e.preventDefault();
@@ -1883,59 +2285,95 @@
       }
     });
 
+    // ============================================================
+    // MODAL
+    // ============================================================
     modalClose.addEventListener('click', function(e) {
       e.preventDefault();
       modal.classList.remove('active');
     });
     modal.addEventListener('click', function(e) {
-      if (e.target === this) modal.classList.remove('active');
+      if (e.target === this) {
+        modal.classList.remove('active');
+      }
     });
 
+    // ============================================================
+    // PWA INSTALL
+    // ============================================================
     var deferredPrompt = null;
+
     window.addEventListener('beforeinstallprompt', function(e) {
       e.preventDefault();
       deferredPrompt = e;
       installBtn.classList.remove('hidden');
     });
+
     installBtn.addEventListener('click', function(e) {
       e.preventDefault();
       if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(function(result) {
-          if (result.outcome === 'accepted') setStatus('✅ App installed!', 'success');
+          if (result.outcome === 'accepted') {
+            setStatus('✅ App installed!', 'success');
+          }
           deferredPrompt = null;
           installBtn.classList.add('hidden');
         });
       }
     });
 
+    window.addEventListener('appinstalled', function() {
+      setStatus('🎉 App installed successfully!', 'success');
+      installBtn.classList.add('hidden');
+    });
+
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
     captureBtn.addEventListener('click', capturePhoto);
     retakeBtn.addEventListener('click', retakePhoto);
     sendBtn.addEventListener('click', sendWhatsApp);
 
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible') {
-        if (!state.isVideoRunning && state.cameraReady) startCamera();
+        if (!state.isVideoRunning && state.cameraReady) {
+          startCamera();
+        }
       }
     });
 
     var touchHandler = function() {
-      if (!state.isVideoRunning && !state.cameraReady) startCamera();
+      if (!state.isVideoRunning && !state.cameraReady) {
+        startCamera();
+      }
       document.removeEventListener('touchstart', touchHandler);
     };
     document.addEventListener('touchstart', touchHandler, { once: true, passive: true });
 
+    // ============================================================
+    // INIT
+    // ============================================================
     function init() {
       checkVersion();
       loadSuggestions();
+      
       renderSuggestions();
       renderMainView();
       updateCharCount();
       updateSettingsBadge();
+      
+      // Start with portrait mode by default
+      state.isPortrait = true;
+      orientationLabel.textContent = 'Portrait';
+      
       setStatus('📷 Starting camera...', 'info');
+      
       setTimeout(function() {
-        startCamera().then(function(started) {
-          if (!started) setStatus('📷 Tap "Allow Camera" to start', 'warning');
+        startCamera('portrait').then(function(started) {
+          if (!started) {
+            setStatus('📷 Tap "Allow Camera" to start', 'warning');
+          }
         });
       }, 300);
     }

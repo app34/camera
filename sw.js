@@ -1,6 +1,6 @@
-// Service Worker for BedDecor PWA - v1.0.5
-var CACHE_NAME = 'beddecor-v1-0-5';
-var APP_VERSION = '1.0.5';
+// Service Worker for BedDecor PWA - v1.0.6
+var CACHE_NAME = 'beddecor-v1-0-6';
+var APP_VERSION = '1.0.6';
 
 var ASSETS_TO_CACHE = [
   './',
