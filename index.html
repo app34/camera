@@ -515,7 +515,7 @@
       transform: rotate(0deg);
     }
     
-    /* Orientation button */
+    /* Orientation controls */
     .orientation-controls {
       display: flex;
       gap: 8px;
@@ -2143,7 +2143,7 @@
     }
 
     // ============================================================
-    // CAPTURE
+    // CAPTURE PHOTO - FIXED ORIENTATION
     // ============================================================
     function capturePhoto() {
       if (!state.cameraReady) {
@@ -2178,10 +2178,47 @@
         var canvas = document.createElement('canvas');
         var videoWidth = liveVideo.videoWidth || 1280;
         var videoHeight = liveVideo.videoHeight || 720;
-        canvas.width = videoWidth;
-        canvas.height = videoHeight;
+        
+        // Always use landscape dimensions (width > height) for consistent orientation
+        // This ensures photos are always sent in landscape orientation
+        var isLandscape = (videoWidth > videoHeight);
+        var finalWidth, finalHeight;
+        
+        if (state.orientation === 'landscape') {
+          // Force landscape (width > height)
+          finalWidth = Math.max(videoWidth, videoHeight);
+          finalHeight = Math.min(videoWidth, videoHeight);
+        } else {
+          // Force portrait (height > width)
+          finalWidth = Math.min(videoWidth, videoHeight);
+          finalHeight = Math.max(videoWidth, videoHeight);
+        }
+        
+        canvas.width = finalWidth;
+        canvas.height = finalHeight;
         var ctx = canvas.getContext('2d');
-        ctx.drawImage(liveVideo, 0, 0, canvas.width, canvas.height);
+        
+        // Draw and rotate if needed
+        if (state.orientation === 'landscape') {
+          // If video is portrait but we want landscape, rotate 90 degrees
+          if (videoWidth < videoHeight) {
+            ctx.translate(canvas.width, 0);
+            ctx.rotate(Math.PI / 2);
+            ctx.drawImage(liveVideo, 0, 0, videoHeight, videoWidth);
+          } else {
+            ctx.drawImage(liveVideo, 0, 0, videoWidth, videoHeight);
+          }
+        } else {
+          // Portrait mode
+          if (videoWidth > videoHeight) {
+            // Landscape video rotated to portrait
+            ctx.translate(0, canvas.height);
+            ctx.rotate(-Math.PI / 2);
+            ctx.drawImage(liveVideo, 0, 0, videoHeight, videoWidth);
+          } else {
+            ctx.drawImage(liveVideo, 0, 0, videoWidth, videoHeight);
+          }
+        }
 
         var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
         state.photos[slot].dataUrl = dataUrl;
