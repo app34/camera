@@ -50,6 +50,17 @@
       overflow: hidden;
     }
     
+    .version-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 14px;
+      font-size: 0.4rem;
+      color: rgba(255,255,255,0.1);
+      z-index: 20;
+      pointer-events: none;
+      letter-spacing: 0.5px;
+    }
+    
     /* === FULL SCREEN CAMERA === */
     .camera-container {
       position: absolute;
@@ -112,7 +123,7 @@
       color: rgba(255,255,255,0.25); 
     }
     
-    /* === CAPTURED PHOTO FLASH === */
+    /* === PHOTO FLASH === */
     .photo-flash {
       position: absolute;
       top: 0;
@@ -120,9 +131,9 @@
       right: 0;
       bottom: 0;
       z-index: 6;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -204,7 +215,6 @@
       color: rgba(255,255,255,0.7);
       background: rgba(0,0,0,0.4);
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       padding: 4px 12px 4px 10px;
       border-radius: 30px;
       border: 1px solid rgba(255,255,255,0.08);
@@ -771,6 +781,77 @@
     .status-bar .status-dot.red { background: #f87171; box-shadow: 0 0 8px rgba(248,113,113,0.3); }
     .status-bar .status-dot.gray { background: rgba(255,255,255,0.1); }
     
+    /* === FULLSCREEN IMAGE VIEW - PROFESSIONAL === */
+    .image-view-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      padding: 20px;
+      animation: fadeIn 0.35s ease;
+    }
+    .image-view-modal.active { display: flex; }
+    .image-view-modal .modal-content {
+      max-width: 600px;
+      width: 100%;
+      position: relative;
+      animation: zoomInModal 0.35s ease;
+    }
+    .image-view-modal .modal-content img {
+      width: 100%;
+      height: auto;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 16px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+      background: #000;
+    }
+    .image-view-modal .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      color: #fff;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .image-view-modal .modal-close:active { 
+      transform: scale(0.88); 
+      background: rgba(0,0,0,0.8);
+    }
+    .image-view-modal .photo-info {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      padding: 6px 16px;
+      border-radius: 20px;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.65rem;
+      border: 1px solid rgba(255,255,255,0.05);
+      white-space: nowrap;
+    }
+    
     /* === MODALS === */
     .modal-overlay {
       position: fixed;
@@ -992,66 +1073,11 @@
       border: 1px solid rgba(59,130,246,0.1);
     }
     
-    /* === FULLSCREEN IMAGE VIEW === */
-    .image-view-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.95);
-      backdrop-filter: blur(30px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 9998;
-      padding: 20px;
-      animation: fadeIn 0.35s ease;
-    }
-    .image-view-modal.active { display: flex; }
-    .image-view-modal .modal-content {
-      max-width: 500px;
-      width: 100%;
-      position: relative;
-      animation: zoomInModal 0.35s ease;
-    }
-    .image-view-modal .modal-content img {
-      width: 100%;
-      height: auto;
-      max-height: 80vh;
-      object-fit: contain;
-      border-radius: 16px;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-    }
-    .image-view-modal .modal-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.6);
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
-      color: #fff;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .image-view-modal .modal-close:active { 
-      transform: scale(0.88); 
-      background: rgba(0,0,0,0.8);
-    }
-    
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
     }
     
-    /* === RESPONSIVE === */
     @media (max-width: 420px) {
       .overlay-ui { padding: 10px 10px 14px; }
       .btn-capture { width: 60px; height: 60px; }
@@ -1104,7 +1130,7 @@
       <video id="liveVideo" autoplay playsinline muted webkit-playsinline style="display:none;"></video>
       <img id="mainPreviewImg" style="display:none;" alt="Preview">
       
-      <!-- PHOTO FLASH (brief animation) -->
+      <!-- PHOTO FLASH -->
       <div class="photo-flash" id="photoFlash">
         <div class="flash-content">
           <span class="checkmark">✅</span>
@@ -1201,10 +1227,11 @@
   <div class="modal-content">
     <button class="modal-close" id="imageViewClose">✕</button>
     <img id="imageViewImg" src="" alt="Full view">
+    <span class="photo-info" id="photoInfo">📸 Photo</span>
   </div>
 </div>
 
-<!-- ADD SUGGESTION MODAL -->
+<!-- MODALS -->
 <div class="modal-overlay" id="addSuggestionModal">
   <div class="modal-content">
     <div class="modal-header">
@@ -1218,7 +1245,6 @@
   </div>
 </div>
 
-<!-- SETTINGS MODAL -->
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-content">
     <div class="modal-header">
@@ -1234,7 +1260,6 @@
   </div>
 </div>
 
-<!-- CLEAR DATA MODAL -->
 <div class="modal-overlay" id="clearDataModal">
   <div class="modal-content" style="text-align:center; max-width:340px;">
     <div style="font-size:3rem; margin-bottom:10px;">⚠️</div>
@@ -1297,6 +1322,7 @@
     var imageViewModal = document.getElementById('imageViewModal');
     var imageViewImg = document.getElementById('imageViewImg');
     var imageViewClose = document.getElementById('imageViewClose');
+    var photoInfo = document.getElementById('photoInfo');
     var permBtn = document.getElementById('permissionBtn');
     var permText = document.getElementById('permText');
     var cameraDot = document.getElementById('cameraDot');
@@ -1972,7 +1998,7 @@
     }
 
     // ============================================================
-    // CAPTURE - SAVE AUTO, SHOW FLASH
+    // CAPTURE - SAVE AUTO WITH HIGH QUALITY
     // ============================================================
     function capturePhoto() {
       if (!state.cameraReady) {
@@ -2037,15 +2063,15 @@
           ctx.drawImage(liveVideo, 0, 0, videoWidth, videoHeight);
         }
 
+        // HIGH QUALITY - 0.95 for JPEG
         var dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         
-        // Save directly - NO extra step
         state.photos[slot].dataUrl = dataUrl;
         state.selectedIndex = slot;
 
         renderMainView();
         
-        // Show flash animation
+        // Flash animation
         photoFlash.classList.add('active');
         setTimeout(function() {
           photoFlash.classList.remove('active');
@@ -2053,14 +2079,13 @@
         
         setStatus('✅ Photo ' + (slot+1) + ' saved!', 'success');
         
-        // Always show camera view after capture
+        // Show camera again
         setTimeout(function() {
           if (state.isVideoRunning) {
             liveVideo.style.display = 'block';
             mainPreviewImg.style.display = 'none';
             mainPlaceholder.style.display = 'none';
           }
-          // Keep thumbnail showing
           updateThumbnails();
         }, 300);
         
@@ -2090,7 +2115,6 @@
       }
       state.photos[slot].dataUrl = null;
       renderMainView();
-      // Show camera again
       if (state.isVideoRunning) {
         liveVideo.style.display = 'block';
         mainPreviewImg.style.display = 'none';
@@ -2100,7 +2124,7 @@
     }
 
     // ============================================================
-    // SEND WHATSAPP
+    // SEND WHATSAPP - SEND FULL QUALITY IMAGES
     // ============================================================
     function sendWhatsApp() {
       var photosToSend = [];
@@ -2126,45 +2150,55 @@
       var messageText = ticket || 'Bed Decoration Photos';
       var encodedMsg = encodeURIComponent('🏨 *' + messageText + '*');
 
+      // Try Web Share API with multiple files
       if (navigator.share) {
         var filePromises = photosToSend.map(function(photo) {
+          // Fetch the full quality image
           return fetch(photo.dataUrl)
             .then(function(res) { return res.blob(); })
             .then(function(blob) {
               var num = photo.index + 1;
-              return new File([blob], 'photo_' + num + '.jpg', { type: 'image/jpeg' });
+              // Create file with proper name
+              return new File([blob], 'bed_decor_photo_' + num + '.jpg', { 
+                type: 'image/jpeg' 
+              });
             });
         });
 
-        Promise.all(filePromises).then(function(files) {
-          var shareData = {
-            title: 'Bed Decor',
-            text: messageText,
-            files: files
-          };
+        Promise.all(filePromises)
+          .then(function(files) {
+            // If multiple photos, send them all at once
+            var shareData = {
+              title: 'Bed Decor',
+              text: messageText,
+              files: files
+            };
 
-          if (navigator.canShare && navigator.canShare(shareData)) {
-            navigator.share(shareData)
-              .then(function() {
-                state.isSending = false;
-                sendBtn.disabled = false;
-                updateButtons();
-                setStatus('✅ ' + photosToSend.length + ' photo(s) shared!', 'success');
-              })
-              .catch(function(err) {
-                if (err.name !== 'AbortError') {
-                  fallbackToWhatsApp();
-                } else {
+            if (navigator.canShare && navigator.canShare(shareData)) {
+              navigator.share(shareData)
+                .then(function() {
                   state.isSending = false;
                   sendBtn.disabled = false;
                   updateButtons();
-                  setStatus('⚠️ Cancelled', 'warning');
-                }
-              });
-          } else {
-            fallbackToWhatsApp();
-          }
-        }).catch(function() { fallbackToWhatsApp(); });
+                  setStatus('✅ ' + photosToSend.length + ' photo(s) shared!', 'success');
+                })
+                .catch(function(err) {
+                  if (err.name !== 'AbortError') {
+                    fallbackToWhatsApp();
+                  } else {
+                    state.isSending = false;
+                    sendBtn.disabled = false;
+                    updateButtons();
+                    setStatus('⚠️ Cancelled', 'warning');
+                  }
+                });
+            } else {
+              fallbackToWhatsApp();
+            }
+          })
+          .catch(function() { 
+            fallbackToWhatsApp(); 
+          });
       } else {
         fallbackToWhatsApp();
       }
@@ -2180,13 +2214,15 @@
     }
 
     // ============================================================
-    // THUMBNAILS - Click to view full image
+    // THUMBNAILS - PROFESSIONAL FULL SCREEN VIEW
     // ============================================================
     thumbnails.forEach(function(thumb, idx) {
       thumb.addEventListener('click', function(e) {
         e.preventDefault();
         if (state.photos[idx].dataUrl) {
+          // Show full screen professional view
           imageViewImg.src = state.photos[idx].dataUrl;
+          photoInfo.textContent = '📸 Photo ' + (idx + 1);
           imageViewModal.classList.add('active');
         } else {
           state.selectedIndex = idx;
