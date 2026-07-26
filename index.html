@@ -71,7 +71,7 @@
       bottom: 8px;
       right: 14px;
       font-size: 0.4rem;
-      color: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.1);
       z-index: 20;
       pointer-events: none;
       letter-spacing: 0.5px;
@@ -107,20 +107,6 @@
       background: #000;
     }
     
-    .camera-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      background: #000;
-      animation: imageIn 0.4s ease;
-    }
-    
-    @keyframes imageIn {
-      from { opacity: 0; transform: scale(1.05); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    
     .camera-preview .placeholder {
       position: absolute;
       top: 50%;
@@ -153,7 +139,83 @@
       color: rgba(255,255,255,0.25); 
     }
     
-    /* === OVERLAY UI - FLOATING ON TOP === */
+    /* === CAPTURED PHOTO OVERLAY === */
+    .photo-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 5;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+    .photo-overlay.active {
+      display: flex;
+    }
+    .photo-overlay img {
+      max-width: 90%;
+      max-height: 70vh;
+      object-fit: contain;
+      border-radius: 16px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+      animation: zoomIn 0.35s ease;
+    }
+    .photo-overlay .photo-actions {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 16px;
+      z-index: 6;
+    }
+    .photo-overlay .photo-actions .btn-photo {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.8);
+    }
+    .photo-overlay .photo-actions .btn-photo:active { transform: scale(0.92); }
+    .photo-overlay .photo-actions .btn-photo.retake {
+      background: rgba(248,113,113,0.15);
+      border-color: rgba(248,113,113,0.2);
+      color: #f87171;
+    }
+    .photo-overlay .photo-actions .btn-photo.keep {
+      background: rgba(74,222,128,0.15);
+      border-color: rgba(74,222,128,0.2);
+      color: #4ade80;
+    }
+    .photo-overlay .photo-actions .btn-photo .icon { font-size: 1rem; }
+    
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* === OVERLAY UI === */
     .overlay-ui {
       position: absolute;
       top: 0;
@@ -166,9 +228,8 @@
       flex-direction: column;
       justify-content: space-between;
       padding: 12px 14px 18px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 25%, transparent 60%, rgba(0,0,0,0.5) 100%);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 20%, transparent 65%, rgba(0,0,0,0.5) 100%);
     }
-    
     .overlay-ui > * {
       pointer-events: auto;
     }
@@ -231,12 +292,11 @@
       flex-shrink: 0;
     }
     
-    /* === PERMISSION BUTTON === */
     .perm-btn-sm {
-      background: rgba(59,130,246,0.2);
-      border: 1px solid rgba(59,130,246,0.3);
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.2);
       border-radius: 30px;
-      padding: 5px 12px;
+      padding: 4px 12px;
       font-size: 0.55rem;
       font-weight: 600;
       color: #93b4f8;
@@ -252,28 +312,22 @@
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.08);
     }
     .perm-btn-sm:active { transform: scale(0.92); }
     .perm-btn-sm.granted {
-      background: rgba(74,222,128,0.15);
-      border-color: rgba(74,222,128,0.25);
+      background: rgba(74,222,128,0.12);
+      border-color: rgba(74,222,128,0.2);
       color: #4ade80;
     }
     .perm-btn-sm.denied {
-      background: rgba(248,113,113,0.15);
-      border-color: rgba(248,113,113,0.25);
+      background: rgba(248,113,113,0.12);
+      border-color: rgba(248,113,113,0.2);
       color: #f87171;
       animation: pulse-red-sm 2s infinite;
     }
-    .perm-btn-sm.checking { opacity: 0.5; cursor: not-allowed; }
-    @keyframes pulse-red-sm {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.15); }
-      50% { box-shadow: 0 0 0 8px rgba(248,113,113,0); }
-    }
     .perm-btn-sm .icon { font-size: 0.8rem; }
     
-    /* === SETTINGS BUTTON === */
     .settings-btn {
       background: rgba(0,0,0,0.3);
       backdrop-filter: blur(8px);
@@ -296,7 +350,6 @@
       flex-shrink: 0;
     }
     .settings-btn:active { transform: scale(0.88); background: rgba(0,0,0,0.5); }
-    .settings-btn.active { border-color: #ff5e7c; color: #ff8aa3; }
     .settings-btn .badge-dot {
       position: absolute;
       top: -2px;
@@ -315,14 +368,13 @@
     }
     .settings-btn .badge-dot.show { display: block; }
     
-    /* === INSTALL BUTTON === */
     .install-btn {
-      background: rgba(74,222,128,0.15);
+      background: rgba(74,222,128,0.12);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(74,222,128,0.2);
+      border: 1px solid rgba(74,222,128,0.15);
       border-radius: 30px;
-      padding: 5px 12px;
+      padding: 4px 12px;
       font-size: 0.55rem;
       font-weight: 600;
       color: #4ade80;
@@ -344,11 +396,11 @@
     .bottom-controls {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       flex-shrink: 0;
     }
     
-    /* === TICKET BOX - COMPACT OVERLAY === */
+    /* === TICKET BOX === */
     .ticket-section {
       position: relative;
       flex-shrink: 0;
@@ -359,11 +411,11 @@
       -webkit-backdrop-filter: blur(12px);
       border-radius: 20px;
       padding: 6px 10px 8px;
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.05);
       transition: border-color 0.3s ease;
     }
     .ticket-box:focus-within {
-      border-color: rgba(255,94,124,0.3);
+      border-color: rgba(255,94,124,0.2);
     }
     .ticket-box .label-row {
       display: flex;
@@ -375,12 +427,12 @@
       font-size: 0.45rem;
       font-weight: 700;
       color: rgba(255,255,255,0.4);
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.05);
       padding: 1px 10px;
       border-radius: 30px;
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.05);
     }
     .ticket-box .label-row .hint {
       font-size: 0.4rem;
@@ -426,7 +478,7 @@
       appearance: none;
     }
     .ticket-box input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; }
-    .ticket-box input:focus { box-shadow: 0 0 0 2px rgba(255,94,124,0.1); }
+    .ticket-box input:focus { box-shadow: 0 0 0 2px rgba(255,94,124,0.08); }
     
     /* === SUGGESTIONS === */
     .suggestions-header {
@@ -466,7 +518,7 @@
     }
     .suggestions-header .add-btn:active {
       background: rgba(255,94,124,0.1);
-      border-color: rgba(255,94,124,0.3);
+      border-color: rgba(255,94,124,0.2);
       color: #ff8aa3;
     }
     .suggestions {
@@ -491,8 +543,8 @@
       border-radius: 10px;
     }
     .suggestion-chip {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.05);
       border-radius: 30px;
       padding: 2px 10px;
       font-size: 0.5rem;
@@ -515,8 +567,8 @@
     }
     .suggestion-chip:active { transform: scale(0.92); }
     .suggestion-chip.selected {
-      background: rgba(255,94,124,0.15);
-      border-color: rgba(255,94,124,0.3);
+      background: rgba(255,94,124,0.12);
+      border-color: rgba(255,94,124,0.2);
       color: #ff8aa3;
     }
     .suggestion-chip .chip-text { max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
@@ -536,7 +588,7 @@
       text-align: center;
     }
     
-    /* === CAMERA CONTROLS - BOTTOM === */
+    /* === CAMERA CONTROLS === */
     .camera-controls {
       display: flex;
       gap: 12px;
@@ -549,7 +601,7 @@
       width: 68px;
       height: 68px;
       border-radius: 50%;
-      border: 3.5px solid rgba(255,255,255,0.3);
+      border: 3.5px solid rgba(255,255,255,0.2);
       background: rgba(255,255,255,0.05);
       cursor: pointer;
       transition: all 0.3s ease;
@@ -577,15 +629,15 @@
       border-radius: 50%;
       background: linear-gradient(135deg, #ff5e7c, #e94a6a);
       transition: all 0.3s ease;
-      box-shadow: 0 0 30px rgba(255,94,124,0.2);
+      box-shadow: 0 0 30px rgba(255,94,124,0.15);
     }
     .btn-capture:active .inner-circle { transform: scale(0.85); }
     .btn-capture.has-photos {
-      border-color: rgba(74,222,128,0.3);
+      border-color: rgba(74,222,128,0.2);
     }
     .btn-capture.has-photos .inner-circle {
       background: linear-gradient(135deg, #4ade80, #22c55e);
-      box-shadow: 0 0 30px rgba(74,222,128,0.2);
+      box-shadow: 0 0 30px rgba(74,222,128,0.15);
     }
     .btn-capture .ripple {
       position: absolute;
@@ -610,9 +662,9 @@
       transition: all 0.25s ease;
       touch-action: manipulation;
       letter-spacing: 0.3px;
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.05);
       color: rgba(255,255,255,0.6);
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.05);
       flex: 1;
       min-height: 36px;
       display: flex;
@@ -626,7 +678,7 @@
     }
     .btn-action:active {
       transform: scale(0.95);
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.08);
     }
     .btn-action:disabled {
       opacity: 0.3;
@@ -634,23 +686,23 @@
       cursor: not-allowed;
     }
     .btn-action.whatsapp {
-      background: rgba(37,211,102,0.15);
-      border: 1px solid rgba(37,211,102,0.2);
+      background: rgba(37,211,102,0.12);
+      border: 1px solid rgba(37,211,102,0.15);
       color: #4ade80;
       font-weight: 700;
     }
-    .btn-action.whatsapp:active { background: rgba(37,211,102,0.25); }
+    .btn-action.whatsapp:active { background: rgba(37,211,102,0.2); }
     .btn-action.whatsapp:disabled {
       background: rgba(37,211,102,0.05);
       border-color: rgba(37,211,102,0.05);
       color: rgba(74,222,128,0.2);
     }
     .btn-action.danger {
-      background: rgba(248,113,113,0.1);
-      border: 1px solid rgba(248,113,113,0.1);
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.08);
       color: #f87171;
     }
-    .btn-action.danger:active { background: rgba(248,113,113,0.2); }
+    .btn-action.danger:active { background: rgba(248,113,113,0.15); }
     .btn-action.danger:disabled {
       background: rgba(248,113,113,0.03);
       border-color: rgba(248,113,113,0.03);
@@ -672,7 +724,7 @@
       width: 50px;
       height: 50px;
       border-radius: 12px;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.03);
       border: 2px solid rgba(255,255,255,0.06);
       overflow: hidden;
       cursor: pointer;
@@ -688,11 +740,11 @@
     .thumbnail:active { transform: scale(0.9); }
     .thumbnail.active {
       border-color: #ff5e7c;
-      box-shadow: 0 0 20px rgba(255,94,124,0.15);
+      box-shadow: 0 0 20px rgba(255,94,124,0.12);
       transform: scale(1.05);
     }
     .thumbnail.has-image { 
-      border-color: rgba(74,222,128,0.3); 
+      border-color: rgba(74,222,128,0.2); 
     }
     .thumbnail img {
       width: 100%;
@@ -742,7 +794,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(255,94,124,0.1);
+      background: rgba(255,94,124,0.08);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -790,8 +842,8 @@
     }
     .btn-orientation:active { transform: scale(0.92); }
     .btn-orientation.active {
-      background: rgba(255,94,124,0.12);
-      border-color: rgba(255,94,124,0.3);
+      background: rgba(255,94,124,0.1);
+      border-color: rgba(255,94,124,0.2);
       color: #ff8aa3;
       box-shadow: 0 0 16px rgba(255,94,124,0.05);
     }
@@ -860,7 +912,11 @@
       max-height: 80vh;
       display: flex;
       flex-direction: column;
-      animation: zoomIn 0.3s ease;
+      animation: zoomInModal 0.3s ease;
+    }
+    @keyframes zoomInModal {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
     }
     .modal-overlay .modal-content .modal-header {
       display: flex;
@@ -994,7 +1050,7 @@
     }
     .settings-item .edit-input:focus { border-color: rgba(250,204,21,0.3); }
     .settings-item .edit-save-btn {
-      background: rgba(74,222,128,0.15);
+      background: rgba(74,222,128,0.12);
       border: 1px solid #4ade80;
       color: #4ade80;
       padding: 2px 12px;
@@ -1033,35 +1089,35 @@
     }
     .modal-overlay .modal-content .settings-actions button:active { transform: scale(0.95); }
     .modal-overlay .modal-content .settings-actions .btn-delete-selected {
-      background: rgba(168,50,66,0.3);
+      background: rgba(168,50,66,0.25);
       color: #f87171;
-      border: 1px solid rgba(168,50,66,0.2);
+      border: 1px solid rgba(168,50,66,0.15);
     }
     .modal-overlay .modal-content .settings-actions .btn-delete-selected:disabled {
       opacity: 0.3;
       cursor: not-allowed;
     }
     .modal-overlay .modal-content .settings-actions .btn-clear-all {
-      background: rgba(122,26,42,0.3);
+      background: rgba(122,26,42,0.25);
       color: #f87171;
-      border: 1px solid rgba(122,26,42,0.2);
+      border: 1px solid rgba(122,26,42,0.15);
     }
     .modal-overlay .modal-content .settings-actions .btn-done {
-      background: rgba(59,130,246,0.2);
+      background: rgba(59,130,246,0.15);
       color: #93b4f8;
       border: 1px solid rgba(59,130,246,0.1);
     }
     
-    /* === FULLSCREEN MODAL === */
-    .fullscreen-modal {
+    /* === FULLSCREEN IMAGE VIEW === */
+    .image-view-modal {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
       background: rgba(0,0,0,0.95);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -1069,18 +1125,14 @@
       padding: 20px;
       animation: fadeIn 0.35s ease;
     }
-    .fullscreen-modal.active { display: flex; }
-    .fullscreen-modal .modal-content {
+    .image-view-modal.active { display: flex; }
+    .image-view-modal .modal-content {
       max-width: 500px;
       width: 100%;
       position: relative;
-      animation: zoomIn 0.35s ease;
+      animation: zoomInModal 0.35s ease;
     }
-    @keyframes zoomIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    .fullscreen-modal .modal-content img {
+    .image-view-modal .modal-content img {
       width: 100%;
       height: auto;
       max-height: 80vh;
@@ -1088,7 +1140,7 @@
       border-radius: 16px;
       box-shadow: 0 30px 60px rgba(0,0,0,0.8);
     }
-    .fullscreen-modal .modal-close {
+    .image-view-modal .modal-close {
       position: absolute;
       top: 10px;
       right: 10px;
@@ -1107,14 +1159,9 @@
       align-items: center;
       justify-content: center;
     }
-    .fullscreen-modal .modal-close:active { 
+    .image-view-modal .modal-close:active { 
       transform: scale(0.88); 
       background: rgba(0,0,0,0.8);
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
     }
     
     /* === RESPONSIVE === */
@@ -1127,6 +1174,8 @@
       .ticket-box input { font-size: 0.7rem; padding: 4px 10px; }
       .suggestion-chip { font-size: 0.45rem; padding: 2px 8px; }
       .suggestion-chip .chip-text { max-width: 60px; }
+      .photo-overlay .photo-actions .btn-photo { padding: 8px 16px; font-size: 0.7rem; }
+      .photo-overlay img { max-height: 60vh; }
     }
     @media (max-width: 360px) {
       .overlay-ui { padding: 8px 8px 12px; }
@@ -1152,6 +1201,9 @@
       .status-bar { min-height: 22px; font-size: 0.5rem; padding: 3px 10px; margin-top: 4px; }
       .orientation-controls { margin-top: -4px; }
       .btn-orientation { font-size: 0.45rem; padding: 1px 8px; }
+      .photo-overlay img { max-height: 55vh; }
+      .photo-overlay .photo-actions { bottom: 30px; }
+      .photo-overlay .photo-actions .btn-photo { padding: 6px 14px; font-size: 0.65rem; }
     }
   </style>
 </head>
@@ -1169,6 +1221,19 @@
       </div>
       <video id="liveVideo" autoplay playsinline muted webkit-playsinline style="display:none;"></video>
       <img id="mainPreviewImg" style="display:none;" alt="Preview">
+      
+      <!-- PHOTO OVERLAY (shows after capture) -->
+      <div class="photo-overlay" id="photoOverlay">
+        <img id="capturedPhotoImg" src="" alt="Captured photo">
+        <div class="photo-actions">
+          <button class="btn-photo retake" id="retakeFromOverlay">
+            <span class="icon">🔄</span> Retake
+          </button>
+          <button class="btn-photo keep" id="keepPhotoBtn">
+            <span class="icon">✅</span> Keep
+          </button>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -1256,11 +1321,11 @@
   </div>
 </div>
 
-<!-- FULLSCREEN IMAGE MODAL -->
-<div class="fullscreen-modal" id="fullscreenModal">
+<!-- FULLSCREEN IMAGE VIEW -->
+<div class="image-view-modal" id="imageViewModal">
   <div class="modal-content">
-    <button class="modal-close" id="modalClose">✕</button>
-    <img id="modalImg" src="" alt="Full view">
+    <button class="modal-close" id="imageViewClose">✕</button>
+    <img id="imageViewImg" src="" alt="Full view">
   </div>
 </div>
 
@@ -1273,7 +1338,7 @@
     </div>
     <input type="text" id="newSuggestionInput" placeholder="Enter suggestion text..." maxlength="50" autocomplete="off" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:10px 14px; font-size:0.9rem; color:rgba(255,255,255,0.9); outline:none; margin-bottom:12px; -webkit-appearance:none; appearance:none;">
     <div style="display:flex; gap:10px;">
-      <button class="btn-done" id="confirmAddBtn" style="flex:1; padding:10px; border:none; border-radius:20px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s ease; background:rgba(255,94,124,0.2); color:#ff8aa3; border:1px solid rgba(255,94,124,0.1);">Add</button>
+      <button class="btn-done" id="confirmAddBtn" style="flex:1; padding:10px; border:none; border-radius:20px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s ease; background:rgba(255,94,124,0.15); color:#ff8aa3; border:1px solid rgba(255,94,124,0.1);">Add</button>
     </div>
   </div>
 </div>
@@ -1302,7 +1367,7 @@
     <p style="color:rgba(255,255,255,0.5); font-size:0.85rem; line-height:1.5; margin-bottom:16px;">This will permanently delete all your suggestions and reset the app to default.</p>
     <div style="display:flex; gap:10px;">
       <button class="btn-cancel-clear" id="cancelClearBtn" style="flex:1; padding:10px; border:none; border-radius:20px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s ease; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.4);">Cancel</button>
-      <button class="btn-confirm-clear" id="confirmClearBtn" style="flex:1; padding:10px; border:none; border-radius:20px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s ease; background:rgba(220,38,38,0.2); color:#f87171; border:1px solid rgba(220,38,38,0.1);">Yes, Clear</button>
+      <button class="btn-confirm-clear" id="confirmClearBtn" style="flex:1; padding:10px; border:none; border-radius:20px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s ease; background:rgba(220,38,38,0.15); color:#f87171; border:1px solid rgba(220,38,38,0.1);">Yes, Clear</button>
     </div>
   </div>
 </div>
@@ -1332,7 +1397,9 @@
       isVideoRunning: false,
       isInitializing: false,
       isSending: false,
-      orientation: 'landscape'
+      orientation: 'landscape',
+      lastCapturedDataUrl: null,
+      pendingSlot: -1
     };
 
     // DOM REFS
@@ -1340,6 +1407,10 @@
     var mainPlaceholder = document.getElementById('mainPlaceholder');
     var cameraPreview = document.getElementById('cameraPreview');
     var liveVideo = document.getElementById('liveVideo');
+    var photoOverlay = document.getElementById('photoOverlay');
+    var capturedPhotoImg = document.getElementById('capturedPhotoImg');
+    var retakeFromOverlay = document.getElementById('retakeFromOverlay');
+    var keepPhotoBtn = document.getElementById('keepPhotoBtn');
     var thumbnails = [document.getElementById('thumb0'), document.getElementById('thumb1')];
     var ticketInput = document.getElementById('ticketText');
     var charCount = document.getElementById('charCount');
@@ -1356,9 +1427,9 @@
     var captureBtn = document.getElementById('captureBtn');
     var retakeBtn = document.getElementById('retakeBtn');
     var sendBtn = document.getElementById('sendBtn');
-    var modal = document.getElementById('fullscreenModal');
-    var modalImg = document.getElementById('modalImg');
-    var modalClose = document.getElementById('modalClose');
+    var imageViewModal = document.getElementById('imageViewModal');
+    var imageViewImg = document.getElementById('imageViewImg');
+    var imageViewClose = document.getElementById('imageViewClose');
     var permBtn = document.getElementById('permissionBtn');
     var permText = document.getElementById('permText');
     var cameraDot = document.getElementById('cameraDot');
@@ -1982,21 +2053,23 @@
     function renderMainView() {
       var photo = state.photos[state.selectedIndex];
       if (photo.dataUrl) {
+        // Show captured photo in preview (small)
         liveVideo.style.display = 'none';
         mainPreviewImg.src = photo.dataUrl;
         mainPreviewImg.style.display = 'block';
         mainPlaceholder.style.display = 'none';
-        cameraPreview.classList.add('has-image');
+        // But also keep camera running in background
+        if (state.isVideoRunning) {
+          liveVideo.style.display = 'none'; // Keep hidden
+        }
       } else if (state.isVideoRunning) {
         liveVideo.style.display = 'block';
         mainPreviewImg.style.display = 'none';
         mainPlaceholder.style.display = 'none';
-        cameraPreview.classList.remove('has-image');
       } else {
         liveVideo.style.display = 'none';
         mainPreviewImg.style.display = 'none';
         mainPlaceholder.style.display = 'flex';
-        cameraPreview.classList.remove('has-image');
       }
       updateThumbnails();
       updateButtons();
@@ -2034,7 +2107,7 @@
     }
 
     // ============================================================
-    // CAPTURE
+    // CAPTURE - SHOW OVERLAY
     // ============================================================
     function capturePhoto() {
       if (!state.cameraReady) {
@@ -2100,17 +2173,49 @@
         }
 
         var dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-        state.photos[slot].dataUrl = dataUrl;
-        state.selectedIndex = slot;
-
-        renderMainView();
-        setStatus('✅ Photo ' + (slot+1) + ' captured!', 'success');
+        
+        // Store for overlay
+        state.lastCapturedDataUrl = dataUrl;
+        state.pendingSlot = slot;
+        
+        // Show photo overlay
+        capturedPhotoImg.src = dataUrl;
+        photoOverlay.classList.add('active');
+        
+        setStatus('📸 Photo captured! Review or retake.', 'success');
       } catch (error) {
         console.error('Capture error:', error);
         setStatus('❌ Capture error: ' + error.message, 'error');
       }
     }
 
+    // Keep photo from overlay
+    function keepPhoto() {
+      var slot = state.pendingSlot;
+      if (slot === -1 || !state.lastCapturedDataUrl) return;
+      
+      state.photos[slot].dataUrl = state.lastCapturedDataUrl;
+      state.selectedIndex = slot;
+      
+      photoOverlay.classList.remove('active');
+      state.lastCapturedDataUrl = null;
+      state.pendingSlot = -1;
+      
+      renderMainView();
+      setStatus('✅ Photo ' + (slot+1) + ' saved!', 'success');
+    }
+
+    // Retake from overlay
+    function retakeFromOverlayAction() {
+      photoOverlay.classList.remove('active');
+      state.lastCapturedDataUrl = null;
+      state.pendingSlot = -1;
+      setStatus('🔄 Retake - capture again', 'info');
+      // Show camera again
+      renderMainView();
+    }
+
+    // Retake from bottom button
     function retakePhoto() {
       var idx = state.selectedIndex;
       if (!state.photos[idx].dataUrl) {
@@ -2217,14 +2322,15 @@
     }
 
     // ============================================================
-    // THUMBNAILS
+    // THUMBNAILS - Click to view full image
     // ============================================================
     thumbnails.forEach(function(thumb, idx) {
       thumb.addEventListener('click', function(e) {
         e.preventDefault();
         if (state.photos[idx].dataUrl) {
-          modalImg.src = state.photos[idx].dataUrl;
-          modal.classList.add('active');
+          // Show full image in modal
+          imageViewImg.src = state.photos[idx].dataUrl;
+          imageViewModal.classList.add('active');
         } else {
           state.selectedIndex = idx;
           renderMainView();
@@ -2246,18 +2352,22 @@
       }
     });
 
-    // ============================================================
-    // MODAL
-    // ============================================================
-    modalClose.addEventListener('click', function(e) {
+    // Image view modal close
+    imageViewClose.addEventListener('click', function(e) {
       e.preventDefault();
-      modal.classList.remove('active');
+      imageViewModal.classList.remove('active');
     });
-    modal.addEventListener('click', function(e) {
+    imageViewModal.addEventListener('click', function(e) {
       if (e.target === this) {
-        modal.classList.remove('active');
+        imageViewModal.classList.remove('active');
       }
     });
+
+    // ============================================================
+    // OVERLAY EVENTS
+    // ============================================================
+    retakeFromOverlay.addEventListener('click', retakeFromOverlayAction);
+    keepPhotoBtn.addEventListener('click', keepPhoto);
 
     // ============================================================
     // PWA INSTALL
