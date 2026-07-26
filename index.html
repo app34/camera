@@ -1606,8 +1606,8 @@
       }
 
       var isLandscape = (mode === 'landscape');
-      var width = isLandscape ? 1280 : 720;
-      var height = isLandscape ? 720 : 1280;
+      var width = isLandscape ? 1920 : 1080;
+      var height = isLandscape ? 1080 : 1920;
 
       state.isInitializing = true;
       setStatus('📷 Starting camera...', 'warning');
@@ -2143,7 +2143,7 @@
     }
 
     // ============================================================
-    // CAPTURE PHOTO - FIXED ORIENTATION
+    // CAPTURE PHOTO - FIXED: FORCE LANDSCAPE
     // ============================================================
     function capturePhoto() {
       if (!state.cameraReady) {
@@ -2176,51 +2176,46 @@
 
       try {
         var canvas = document.createElement('canvas');
-        var videoWidth = liveVideo.videoWidth || 1280;
-        var videoHeight = liveVideo.videoHeight || 720;
+        var videoWidth = liveVideo.videoWidth;
+        var videoHeight = liveVideo.videoHeight;
         
-        // Always use landscape dimensions (width > height) for consistent orientation
-        // This ensures photos are always sent in landscape orientation
-        var isLandscape = (videoWidth > videoHeight);
-        var finalWidth, finalHeight;
+        // ALWAYS force landscape for the photo
+        // The photo should be wider than tall (e.g., 1920x1080)
+        var targetWidth, targetHeight;
         
         if (state.orientation === 'landscape') {
-          // Force landscape (width > height)
-          finalWidth = Math.max(videoWidth, videoHeight);
-          finalHeight = Math.min(videoWidth, videoHeight);
+          // Force landscape: width > height
+          targetWidth = Math.max(videoWidth, videoHeight);
+          targetHeight = Math.min(videoWidth, videoHeight);
         } else {
-          // Force portrait (height > width)
-          finalWidth = Math.min(videoWidth, videoHeight);
-          finalHeight = Math.max(videoWidth, videoHeight);
+          // Force portrait: height > width
+          targetWidth = Math.min(videoWidth, videoHeight);
+          targetHeight = Math.max(videoWidth, videoHeight);
         }
         
-        canvas.width = finalWidth;
-        canvas.height = finalHeight;
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
         var ctx = canvas.getContext('2d');
         
-        // Draw and rotate if needed
-        if (state.orientation === 'landscape') {
-          // If video is portrait but we want landscape, rotate 90 degrees
-          if (videoWidth < videoHeight) {
-            ctx.translate(canvas.width, 0);
-            ctx.rotate(Math.PI / 2);
-            ctx.drawImage(liveVideo, 0, 0, videoHeight, videoWidth);
-          } else {
-            ctx.drawImage(liveVideo, 0, 0, videoWidth, videoHeight);
-          }
+        // Determine if we need to rotate
+        var needsRotation = false;
+        if (state.orientation === 'landscape' && videoWidth < videoHeight) {
+          needsRotation = true; // Portrait video, need to rotate to landscape
+        } else if (state.orientation === 'portrait' && videoWidth > videoHeight) {
+          needsRotation = true; // Landscape video, need to rotate to portrait
+        }
+        
+        if (needsRotation) {
+          // Rotate the canvas
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.rotate(Math.PI / 2);
+          ctx.drawImage(liveVideo, -videoHeight / 2, -videoWidth / 2, videoHeight, videoWidth);
         } else {
-          // Portrait mode
-          if (videoWidth > videoHeight) {
-            // Landscape video rotated to portrait
-            ctx.translate(0, canvas.height);
-            ctx.rotate(-Math.PI / 2);
-            ctx.drawImage(liveVideo, 0, 0, videoHeight, videoWidth);
-          } else {
-            ctx.drawImage(liveVideo, 0, 0, videoWidth, videoHeight);
-          }
+          ctx.drawImage(liveVideo, 0, 0, videoWidth, videoHeight);
         }
 
-        var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        // Use HIGH quality JPEG (0.95)
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         state.photos[slot].dataUrl = dataUrl;
         state.selectedIndex = slot;
 
@@ -2258,7 +2253,7 @@
     }
 
     // ============================================================
-    // SEND WHATSAPP - ORIGINAL VERSION (UNCHANGED)
+    // SEND WHATSAPP - FIXED: NO "(2 photos)" text
     // ============================================================
     function sendWhatsApp() {
       // Collect all photos with data
@@ -2282,9 +2277,8 @@
       setStatus('📤 Preparing ' + photosToSend.length + ' photo(s)...', 'warning');
 
       var ticket = ticketInput.value || '';
-      var totalPhotos = photosToSend.length;
-
-      // Build clean message without extra text
+      
+      // Build clean message - JUST the ticket text, NO "(2 photos)"
       var messageText = ticket || 'Bed Decoration Photos';
       var encodedMsg = encodeURIComponent('🏨 *' + messageText + '*');
 
@@ -2312,7 +2306,7 @@
                 state.isSending = false;
                 sendBtn.disabled = false;
                 updateButtons();
-                setStatus('✅ ' + totalPhotos + ' photo(s) shared!', 'success');
+                setStatus('✅ ' + photosToSend.length + ' photo(s) shared!', 'success');
               })
               .catch(function(err) {
                 if (err.name !== 'AbortError') {
@@ -2333,7 +2327,6 @@
       }
 
       function fallbackToWhatsApp() {
-        // Open WhatsApp with the message
         var url = 'https://api.whatsapp.com/send?text=' + encodedMsg;
         window.open(url, '_blank');
         setStatus('📤 WhatsApp opened - attach your photos', 'info');
@@ -2445,8 +2438,6 @@
     function init() {
       checkVersion();
       loadSuggestions();
-      
-      // No default suggestions - user adds their own
       
       renderSuggestions();
       renderMainView();
