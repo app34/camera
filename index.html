@@ -15,21 +15,6 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   
-  <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('sw.js')
-          .then(function(registration) {
-            console.log('Service Worker registered successfully');
-          })
-          .catch(function(err) {
-            console.log('Service Worker registration failed:', err);
-          });
-      });
-    }
-  </script>
-  
   <style>
     * {
       margin: 0;
@@ -55,7 +40,6 @@
       user-select: none;
     }
     
-    /* === FULL SCREEN APP === */
     .app {
       width: 100%;
       height: 100%;
@@ -66,18 +50,7 @@
       overflow: hidden;
     }
     
-    .version-badge {
-      position: absolute;
-      bottom: 8px;
-      right: 14px;
-      font-size: 0.4rem;
-      color: rgba(255,255,255,0.1);
-      z-index: 20;
-      pointer-events: none;
-      letter-spacing: 0.5px;
-    }
-    
-    /* === FULL SCREEN CAMERA PREVIEW === */
+    /* === FULL SCREEN CAMERA === */
     .camera-container {
       position: absolute;
       top: 0;
@@ -139,80 +112,55 @@
       color: rgba(255,255,255,0.25); 
     }
     
-    /* === CAPTURED PHOTO OVERLAY === */
-    .photo-overlay {
+    /* === CAPTURED PHOTO FLASH === */
+    .photo-flash {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: 5;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      z-index: 6;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       display: none;
       align-items: center;
       justify-content: center;
-      animation: fadeIn 0.3s ease;
+      animation: flashIn 0.15s ease;
     }
-    .photo-overlay.active {
+    .photo-flash.active {
       display: flex;
     }
-    .photo-overlay img {
-      max-width: 90%;
-      max-height: 70vh;
-      object-fit: contain;
-      border-radius: 16px;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-      animation: zoomIn 0.35s ease;
-    }
-    .photo-overlay .photo-actions {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
+    .photo-flash .flash-content {
       display: flex;
-      gap: 16px;
-      z-index: 6;
-    }
-    .photo-overlay .photo-actions .btn-photo {
-      padding: 10px 24px;
-      border: none;
-      border-radius: 30px;
-      font-weight: 600;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      touch-action: manipulation;
-      display: flex;
+      flex-direction: column;
       align-items: center;
       gap: 8px;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.8);
     }
-    .photo-overlay .photo-actions .btn-photo:active { transform: scale(0.92); }
-    .photo-overlay .photo-actions .btn-photo.retake {
-      background: rgba(248,113,113,0.15);
-      border-color: rgba(248,113,113,0.2);
-      color: #f87171;
-    }
-    .photo-overlay .photo-actions .btn-photo.keep {
-      background: rgba(74,222,128,0.15);
-      border-color: rgba(74,222,128,0.2);
+    .photo-flash .flash-content .checkmark {
+      font-size: 4rem;
       color: #4ade80;
+      animation: popIn 0.3s ease;
     }
-    .photo-overlay .photo-actions .btn-photo .icon { font-size: 1rem; }
-    
-    @keyframes zoomIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to { opacity: 1; transform: scale(1); }
+    .photo-flash .flash-content .flash-text {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.8rem;
+      font-weight: 500;
+      opacity: 0;
+      animation: fadeText 0.4s ease 0.2s forwards;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @keyframes popIn {
+      0% { transform: scale(0); }
+      70% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+    @keyframes flashIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes fadeText {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
     
     /* === OVERLAY UI === */
@@ -260,14 +208,12 @@
       padding: 4px 12px 4px 10px;
       border-radius: 30px;
       border: 1px solid rgba(255,255,255,0.08);
-      transition: all 0.3s ease;
     }
     .top-bar .camera-status .dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
       display: inline-block;
-      transition: all 0.3s ease;
     }
     .top-bar .camera-status .dot.on { 
       background: #4ade80; 
@@ -307,10 +253,7 @@
       align-items: center;
       gap: 6px;
       white-space: nowrap;
-      -webkit-touch-callout: none;
-      user-select: none;
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       background: rgba(0,0,0,0.3);
       border: 1px solid rgba(255,255,255,0.08);
     }
@@ -324,14 +267,12 @@
       background: rgba(248,113,113,0.12);
       border-color: rgba(248,113,113,0.2);
       color: #f87171;
-      animation: pulse-red-sm 2s infinite;
     }
     .perm-btn-sm .icon { font-size: 0.8rem; }
     
     .settings-btn {
       background: rgba(0,0,0,0.3);
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 50%;
       width: 30px;
@@ -345,8 +286,6 @@
       transition: all 0.3s ease;
       touch-action: manipulation;
       position: relative;
-      -webkit-touch-callout: none;
-      user-select: none;
       flex-shrink: 0;
     }
     .settings-btn:active { transform: scale(0.88); background: rgba(0,0,0,0.5); }
@@ -371,7 +310,6 @@
     .install-btn {
       background: rgba(74,222,128,0.12);
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(74,222,128,0.15);
       border-radius: 30px;
       padding: 4px 12px;
@@ -385,8 +323,6 @@
       align-items: center;
       gap: 5px;
       white-space: nowrap;
-      -webkit-touch-callout: none;
-      user-select: none;
     }
     .install-btn:active { transform: scale(0.92); }
     .install-btn.hidden { display: none; }
@@ -402,17 +338,14 @@
     
     /* === TICKET BOX === */
     .ticket-section {
-      position: relative;
       flex-shrink: 0;
     }
     .ticket-box {
       background: rgba(0,0,0,0.5);
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border-radius: 20px;
       padding: 6px 10px 8px;
       border: 1px solid rgba(255,255,255,0.05);
-      transition: border-color 0.3s ease;
     }
     .ticket-box:focus-within {
       border-color: rgba(255,94,124,0.2);
@@ -474,8 +407,6 @@
       color: rgba(255,255,255,0.9);
       outline: none;
       transition: all 0.3s ease;
-      -webkit-appearance: none;
-      appearance: none;
     }
     .ticket-box input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; }
     .ticket-box input:focus { box-shadow: 0 0 0 2px rgba(255,94,124,0.08); }
@@ -513,8 +444,6 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      -webkit-touch-callout: none;
-      user-select: none;
     }
     .suggestions-header .add-btn:active {
       background: rgba(255,94,124,0.1);
@@ -557,8 +486,6 @@
       align-items: center;
       gap: 4px;
       white-space: nowrap;
-      -webkit-touch-callout: none;
-      user-select: none;
       animation: chipIn 0.3s ease;
     }
     @keyframes chipIn {
@@ -610,8 +537,6 @@
       justify-content: center;
       touch-action: manipulation;
       flex-shrink: 0;
-      -webkit-touch-callout: none;
-      user-select: none;
       position: relative;
     }
     .btn-capture:active {
@@ -671,10 +596,7 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      -webkit-touch-callout: none;
-      user-select: none;
       backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
     }
     .btn-action:active {
       transform: scale(0.95);
@@ -716,8 +638,6 @@
       gap: 8px;
       margin-top: 6px;
       justify-content: center;
-      position: relative;
-      z-index: 1;
       flex-shrink: 0;
     }
     .thumbnail {
@@ -734,8 +654,6 @@
       justify-content: center;
       position: relative;
       flex-shrink: 0;
-      -webkit-touch-callout: none;
-      user-select: none;
     }
     .thumbnail:active { transform: scale(0.9); }
     .thumbnail.active {
@@ -767,7 +685,6 @@
       right: 4px;
       background: rgba(0,0,0,0.6);
       backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
       font-size: 0.4rem;
       font-weight: 700;
       color: rgba(255,255,255,0.6);
@@ -787,31 +704,6 @@
       padding: 1px 6px;
       border-radius: 8px;
       white-space: nowrap;
-    }
-    .thumbnail .thumb-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255,94,124,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: all 0.3s ease;
-      border-radius: 10px;
-    }
-    .thumbnail:active .thumb-overlay {
-      opacity: 1;
-    }
-    .thumbnail .thumb-overlay .retake-icon {
-      font-size: 0.8rem;
-      color: #ff5e7c;
-      background: rgba(0,0,0,0.5);
-      border-radius: 50%;
-      padding: 2px;
-      backdrop-filter: blur(4px);
     }
     
     /* === ORIENTATION CONTROLS === */
@@ -834,8 +726,6 @@
       cursor: pointer;
       transition: all 0.25s ease;
       touch-action: manipulation;
-      -webkit-touch-callout: none;
-      user-select: none;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -853,7 +743,6 @@
     .status-bar {
       background: rgba(0,0,0,0.3);
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       border-radius: 30px;
       padding: 4px 12px;
       font-size: 0.55rem;
@@ -876,7 +765,6 @@
       border-radius: 50%;
       display: inline-block;
       flex-shrink: 0;
-      transition: all 0.3s ease;
     }
     .status-bar .status-dot.green { background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,0.3); }
     .status-bar .status-dot.yellow { background: #facc15; box-shadow: 0 0 8px rgba(250,204,21,0.3); }
@@ -892,7 +780,6 @@
       bottom: 0;
       background: rgba(0,0,0,0.85);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -951,7 +838,6 @@
       flex: 1;
       overflow-y: auto;
       padding-right: 4px;
-      -webkit-overflow-scrolling: touch;
     }
     .modal-overlay .modal-content .settings-list::-webkit-scrollbar {
       width: 3px;
@@ -1045,8 +931,6 @@
       font-size: 0.75rem;
       color: rgba(255,255,255,0.9);
       outline: none;
-      -webkit-appearance: none;
-      appearance: none;
     }
     .settings-item .edit-input:focus { border-color: rgba(250,204,21,0.3); }
     .settings-item .edit-save-btn {
@@ -1117,7 +1001,6 @@
       bottom: 0;
       background: rgba(0,0,0,0.95);
       backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -1153,7 +1036,6 @@
       color: #fff;
       cursor: pointer;
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
@@ -1162,6 +1044,11 @@
     .image-view-modal .modal-close:active { 
       transform: scale(0.88); 
       background: rgba(0,0,0,0.8);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     
     /* === RESPONSIVE === */
@@ -1174,8 +1061,6 @@
       .ticket-box input { font-size: 0.7rem; padding: 4px 10px; }
       .suggestion-chip { font-size: 0.45rem; padding: 2px 8px; }
       .suggestion-chip .chip-text { max-width: 60px; }
-      .photo-overlay .photo-actions .btn-photo { padding: 8px 16px; font-size: 0.7rem; }
-      .photo-overlay img { max-height: 60vh; }
     }
     @media (max-width: 360px) {
       .overlay-ui { padding: 8px 8px 12px; }
@@ -1201,9 +1086,6 @@
       .status-bar { min-height: 22px; font-size: 0.5rem; padding: 3px 10px; margin-top: 4px; }
       .orientation-controls { margin-top: -4px; }
       .btn-orientation { font-size: 0.45rem; padding: 1px 8px; }
-      .photo-overlay img { max-height: 55vh; }
-      .photo-overlay .photo-actions { bottom: 30px; }
-      .photo-overlay .photo-actions .btn-photo { padding: 6px 14px; font-size: 0.65rem; }
     }
   </style>
 </head>
@@ -1222,16 +1104,11 @@
       <video id="liveVideo" autoplay playsinline muted webkit-playsinline style="display:none;"></video>
       <img id="mainPreviewImg" style="display:none;" alt="Preview">
       
-      <!-- PHOTO OVERLAY (shows after capture) -->
-      <div class="photo-overlay" id="photoOverlay">
-        <img id="capturedPhotoImg" src="" alt="Captured photo">
-        <div class="photo-actions">
-          <button class="btn-photo retake" id="retakeFromOverlay">
-            <span class="icon">🔄</span> Retake
-          </button>
-          <button class="btn-photo keep" id="keepPhotoBtn">
-            <span class="icon">✅</span> Keep
-          </button>
+      <!-- PHOTO FLASH (brief animation) -->
+      <div class="photo-flash" id="photoFlash">
+        <div class="flash-content">
+          <span class="checkmark">✅</span>
+          <span class="flash-text">Photo Saved</span>
         </div>
       </div>
     </div>
@@ -1302,13 +1179,11 @@
           <span class="thumb-placeholder">📷</span>
           <span class="thumb-number">1</span>
           <span class="thumb-label">Empty</span>
-          <div class="thumb-overlay"><span class="retake-icon">✕</span></div>
         </div>
         <div class="thumbnail" id="thumb1" data-index="1">
           <span class="thumb-placeholder">📷</span>
           <span class="thumb-number">2</span>
           <span class="thumb-label">Empty</span>
-          <div class="thumb-overlay"><span class="retake-icon">✕</span></div>
         </div>
       </div>
 
@@ -1336,7 +1211,7 @@
       <h3>➕ Add Suggestion</h3>
       <button class="close-modal" id="cancelAddBtn">✕</button>
     </div>
-    <input type="text" id="newSuggestionInput" placeholder="Enter suggestion text..." maxlength="50" autocomplete="off" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:10px 14px; font-size:0.9rem; color:rgba(255,255,255,0.9); outline:none; margin-bottom:12px; -webkit-appearance:none; appearance:none;">
+    <input type="text" id="newSuggestionInput" placeholder="Enter suggestion text..." maxlength="50" autocomplete="off" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:10px 14px; font-size:0.9rem; color:rgba(255,255,255,0.9); outline:none; margin-bottom:12px;">
     <div style="display:flex; gap:10px;">
       <button class="btn-done" id="confirmAddBtn" style="flex:1; padding:10px; border:none; border-radius:20px; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s ease; background:rgba(255,94,124,0.15); color:#ff8aa3; border:1px solid rgba(255,94,124,0.1);">Add</button>
     </div>
@@ -1376,9 +1251,6 @@
   (function() {
     "use strict";
 
-    // ============================================================
-    // APP VERSION
-    // ============================================================
     var APP_VERSION = '1.0.3';
     var STORAGE_KEY = 'beddecor_suggestions';
     var VERSION_KEY = 'beddecor_version';
@@ -1397,9 +1269,7 @@
       isVideoRunning: false,
       isInitializing: false,
       isSending: false,
-      orientation: 'landscape',
-      lastCapturedDataUrl: null,
-      pendingSlot: -1
+      orientation: 'landscape'
     };
 
     // DOM REFS
@@ -1407,10 +1277,7 @@
     var mainPlaceholder = document.getElementById('mainPlaceholder');
     var cameraPreview = document.getElementById('cameraPreview');
     var liveVideo = document.getElementById('liveVideo');
-    var photoOverlay = document.getElementById('photoOverlay');
-    var capturedPhotoImg = document.getElementById('capturedPhotoImg');
-    var retakeFromOverlay = document.getElementById('retakeFromOverlay');
-    var keepPhotoBtn = document.getElementById('keepPhotoBtn');
+    var photoFlash = document.getElementById('photoFlash');
     var thumbnails = [document.getElementById('thumb0'), document.getElementById('thumb1')];
     var ticketInput = document.getElementById('ticketText');
     var charCount = document.getElementById('charCount');
@@ -2053,14 +1920,12 @@
     function renderMainView() {
       var photo = state.photos[state.selectedIndex];
       if (photo.dataUrl) {
-        // Show captured photo in preview (small)
         liveVideo.style.display = 'none';
         mainPreviewImg.src = photo.dataUrl;
         mainPreviewImg.style.display = 'block';
         mainPlaceholder.style.display = 'none';
-        // But also keep camera running in background
         if (state.isVideoRunning) {
-          liveVideo.style.display = 'none'; // Keep hidden
+          liveVideo.style.display = 'none';
         }
       } else if (state.isVideoRunning) {
         liveVideo.style.display = 'block';
@@ -2107,7 +1972,7 @@
     }
 
     // ============================================================
-    // CAPTURE - SHOW OVERLAY
+    // CAPTURE - SAVE AUTO, SHOW FLASH
     // ============================================================
     function capturePhoto() {
       if (!state.cameraReady) {
@@ -2174,48 +2039,40 @@
 
         var dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         
-        // Store for overlay
-        state.lastCapturedDataUrl = dataUrl;
-        state.pendingSlot = slot;
+        // Save directly - NO extra step
+        state.photos[slot].dataUrl = dataUrl;
+        state.selectedIndex = slot;
+
+        renderMainView();
         
-        // Show photo overlay
-        capturedPhotoImg.src = dataUrl;
-        photoOverlay.classList.add('active');
+        // Show flash animation
+        photoFlash.classList.add('active');
+        setTimeout(function() {
+          photoFlash.classList.remove('active');
+        }, 600);
         
-        setStatus('📸 Photo captured! Review or retake.', 'success');
+        setStatus('✅ Photo ' + (slot+1) + ' saved!', 'success');
+        
+        // Always show camera view after capture
+        setTimeout(function() {
+          if (state.isVideoRunning) {
+            liveVideo.style.display = 'block';
+            mainPreviewImg.style.display = 'none';
+            mainPlaceholder.style.display = 'none';
+          }
+          // Keep thumbnail showing
+          updateThumbnails();
+        }, 300);
+        
       } catch (error) {
         console.error('Capture error:', error);
         setStatus('❌ Capture error: ' + error.message, 'error');
       }
     }
 
-    // Keep photo from overlay
-    function keepPhoto() {
-      var slot = state.pendingSlot;
-      if (slot === -1 || !state.lastCapturedDataUrl) return;
-      
-      state.photos[slot].dataUrl = state.lastCapturedDataUrl;
-      state.selectedIndex = slot;
-      
-      photoOverlay.classList.remove('active');
-      state.lastCapturedDataUrl = null;
-      state.pendingSlot = -1;
-      
-      renderMainView();
-      setStatus('✅ Photo ' + (slot+1) + ' saved!', 'success');
-    }
-
-    // Retake from overlay
-    function retakeFromOverlayAction() {
-      photoOverlay.classList.remove('active');
-      state.lastCapturedDataUrl = null;
-      state.pendingSlot = -1;
-      setStatus('🔄 Retake - capture again', 'info');
-      // Show camera again
-      renderMainView();
-    }
-
-    // Retake from bottom button
+    // ============================================================
+    // RETAKE
+    // ============================================================
     function retakePhoto() {
       var idx = state.selectedIndex;
       if (!state.photos[idx].dataUrl) {
@@ -2233,7 +2090,8 @@
       }
       state.photos[slot].dataUrl = null;
       renderMainView();
-      if (!state.photos.some(function(p) { return p.dataUrl; }) && state.isVideoRunning) {
+      // Show camera again
+      if (state.isVideoRunning) {
         liveVideo.style.display = 'block';
         mainPreviewImg.style.display = 'none';
         mainPlaceholder.style.display = 'none';
@@ -2328,7 +2186,6 @@
       thumb.addEventListener('click', function(e) {
         e.preventDefault();
         if (state.photos[idx].dataUrl) {
-          // Show full image in modal
           imageViewImg.src = state.photos[idx].dataUrl;
           imageViewModal.classList.add('active');
         } else {
@@ -2337,22 +2194,8 @@
           setStatus('📸 Slot ' + (idx+1) + ' selected', 'info');
         }
       });
-      
-      var overlay = thumb.querySelector('.thumb-overlay');
-      if (overlay) {
-        overlay.addEventListener('click', function(e) {
-          e.stopPropagation();
-          if (state.photos[idx].dataUrl) {
-            state.photos[idx].dataUrl = null;
-            state.selectedIndex = idx;
-            renderMainView();
-            setStatus('🔄 Photo ' + (idx+1) + ' removed', 'info');
-          }
-        });
-      }
     });
 
-    // Image view modal close
     imageViewClose.addEventListener('click', function(e) {
       e.preventDefault();
       imageViewModal.classList.remove('active');
@@ -2362,12 +2205,6 @@
         imageViewModal.classList.remove('active');
       }
     });
-
-    // ============================================================
-    // OVERLAY EVENTS
-    // ============================================================
-    retakeFromOverlay.addEventListener('click', retakeFromOverlayAction);
-    keepPhotoBtn.addEventListener('click', keepPhoto);
 
     // ============================================================
     // PWA INSTALL
