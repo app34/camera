@@ -55,13 +55,12 @@
       bottom: 8px;
       right: 14px;
       font-size: 0.4rem;
-      color: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.08);
       z-index: 20;
       pointer-events: none;
       letter-spacing: 0.5px;
     }
     
-    /* === FULL SCREEN CAMERA === */
     .camera-container {
       position: absolute;
       top: 0;
@@ -86,9 +85,18 @@
     .camera-preview video {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       display: block;
       background: #000;
+    }
+    
+    .camera-preview #mainPreviewImg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      position: absolute;
+      inset: 0;
     }
     
     .camera-preview .placeholder {
@@ -123,7 +131,6 @@
       color: rgba(255,255,255,0.25); 
     }
     
-    /* === PHOTO FLASH === */
     .photo-flash {
       position: absolute;
       top: 0;
@@ -133,7 +140,6 @@
       z-index: 6;
       background: rgba(0,0,0,0.5);
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -174,7 +180,6 @@
       100% { opacity: 1; transform: translateY(0); }
     }
     
-    /* === OVERLAY UI === */
     .overlay-ui {
       position: absolute;
       top: 0;
@@ -338,7 +343,33 @@
     .install-btn.hidden { display: none; }
     .install-btn .icon { font-size: 0.8rem; }
     
-    /* === BOTTOM CONTROLS === */
+    /* === FLASHLIGHT BUTTON - BIG & PROMINENT === */
+    .flash-btn {
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      touch-action: manipulation;
+      flex-shrink: 0;
+    }
+    .flash-btn:active { transform: scale(0.88); background: rgba(0,0,0,0.5); }
+    .flash-btn.on {
+      color: #facc15;
+      border-color: rgba(250,204,21,0.3);
+      background: rgba(250,204,21,0.12);
+      box-shadow: 0 0 30px rgba(250,204,21,0.08);
+    }
+    .flash-btn .icon { font-size: 1.2rem; }
+    
     .bottom-controls {
       display: flex;
       flex-direction: column;
@@ -346,7 +377,6 @@
       flex-shrink: 0;
     }
     
-    /* === TICKET BOX === */
     .ticket-section {
       flex-shrink: 0;
     }
@@ -421,7 +451,6 @@
     .ticket-box input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; }
     .ticket-box input:focus { box-shadow: 0 0 0 2px rgba(255,94,124,0.08); }
     
-    /* === SUGGESTIONS === */
     .suggestions-header {
       display: flex;
       justify-content: space-between;
@@ -523,6 +552,44 @@
       padding: 4px 0;
       width: 100%;
       text-align: center;
+    }
+    
+    /* === ORIENTATION TOGGLE - BEAUTIFUL === */
+    .orientation-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(8px);
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 3px;
+      flex-shrink: 0;
+      margin: 0 auto;
+    }
+    .orientation-toggle .toggle-btn {
+      padding: 4px 14px;
+      border: none;
+      border-radius: 26px;
+      font-size: 0.55rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      touch-action: manipulation;
+      background: transparent;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .orientation-toggle .toggle-btn:active { transform: scale(0.92); }
+    .orientation-toggle .toggle-btn .icon { font-size: 0.7rem; }
+    .orientation-toggle .toggle-btn.active {
+      background: rgba(255,94,124,0.15);
+      color: #ff8aa3;
+      box-shadow: 0 0 20px rgba(255,94,124,0.05);
     }
     
     /* === CAMERA CONTROLS === */
@@ -642,7 +709,6 @@
     }
     .btn-action .icon { font-size: 0.7rem; }
     
-    /* === THUMBNAILS === */
     .thumbnails-row {
       display: flex;
       gap: 8px;
@@ -677,12 +743,8 @@
     .thumbnail img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      animation: thumbIn 0.3s ease;
-    }
-    @keyframes thumbIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to { opacity: 1; transform: scale(1); }
+      object-fit: contain;
+      background: #000;
     }
     .thumbnail .thumb-placeholder { 
       font-size: 1.2rem; 
@@ -716,40 +778,6 @@
       white-space: nowrap;
     }
     
-    /* === ORIENTATION CONTROLS === */
-    .orientation-controls {
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-      align-items: center;
-      flex-shrink: 0;
-    }
-    .btn-orientation {
-      padding: 2px 10px;
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px;
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(4px);
-      color: rgba(255,255,255,0.3);
-      font-size: 0.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      touch-action: manipulation;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .btn-orientation:active { transform: scale(0.92); }
-    .btn-orientation.active {
-      background: rgba(255,94,124,0.1);
-      border-color: rgba(255,94,124,0.2);
-      color: #ff8aa3;
-      box-shadow: 0 0 16px rgba(255,94,124,0.05);
-    }
-    .btn-orientation .icon { font-size: 0.6rem; }
-    
-    /* === STATUS BAR === */
     .status-bar {
       background: rgba(0,0,0,0.3);
       backdrop-filter: blur(8px);
@@ -781,7 +809,6 @@
     .status-bar .status-dot.red { background: #f87171; box-shadow: 0 0 8px rgba(248,113,113,0.3); }
     .status-bar .status-dot.gray { background: rgba(255,255,255,0.1); }
     
-    /* === FULLSCREEN IMAGE VIEW - PROFESSIONAL === */
     .image-view-modal {
       position: fixed;
       top: 0;
@@ -790,7 +817,6 @@
       bottom: 0;
       background: rgba(0,0,0,0.95);
       backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -852,7 +878,6 @@
       white-space: nowrap;
     }
     
-    /* === MODALS === */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -1087,6 +1112,8 @@
       .ticket-box input { font-size: 0.7rem; padding: 4px 10px; }
       .suggestion-chip { font-size: 0.45rem; padding: 2px 8px; }
       .suggestion-chip .chip-text { max-width: 60px; }
+      .flash-btn { width: 36px; height: 36px; font-size: 1rem; }
+      .orientation-toggle .toggle-btn { padding: 3px 10px; font-size: 0.5rem; }
     }
     @media (max-width: 360px) {
       .overlay-ui { padding: 8px 8px 12px; }
@@ -1097,6 +1124,7 @@
       .suggestions { max-height: 35px; }
       .suggestion-chip { font-size: 0.4rem; padding: 1px 6px; }
       .suggestion-chip .chip-text { max-width: 40px; }
+      .flash-btn { width: 32px; height: 32px; font-size: 0.9rem; }
     }
     @media (max-height: 700px) {
       .overlay-ui { padding: 8px 10px 12px; }
@@ -1110,16 +1138,15 @@
       .thumbnail { width: 38px; height: 38px; }
       .btn-action { font-size: 0.5rem; min-height: 28px; padding: 4px 8px; }
       .status-bar { min-height: 22px; font-size: 0.5rem; padding: 3px 10px; margin-top: 4px; }
-      .orientation-controls { margin-top: -4px; }
-      .btn-orientation { font-size: 0.45rem; padding: 1px 8px; }
+      .orientation-toggle { padding: 2px; }
+      .orientation-toggle .toggle-btn { padding: 2px 10px; font-size: 0.5rem; }
     }
   </style>
 </head>
 <body>
 <div class="app" id="app">
-  <span class="version-badge" id="versionBadge">v1.0.3</span>
+  <span class="version-badge" id="versionBadge">v1.3.0</span>
   
-  <!-- FULL SCREEN CAMERA -->
   <div class="camera-container">
     <div class="camera-preview" id="cameraPreview">
       <div class="placeholder" id="mainPlaceholder">
@@ -1130,7 +1157,6 @@
       <video id="liveVideo" autoplay playsinline muted webkit-playsinline style="display:none;"></video>
       <img id="mainPreviewImg" style="display:none;" alt="Preview">
       
-      <!-- PHOTO FLASH -->
       <div class="photo-flash" id="photoFlash">
         <div class="flash-content">
           <span class="checkmark">✅</span>
@@ -1140,7 +1166,6 @@
     </div>
   </div>
   
-  <!-- OVERLAY UI -->
   <div class="overlay-ui">
     <!-- TOP BAR -->
     <div class="top-bar">
@@ -1149,6 +1174,10 @@
           <span class="dot off" id="cameraDot"></span>
           <span id="cameraStatusText">Off</span>
         </div>
+        <!-- FLASHLIGHT - BIG & EASY TO ACCESS -->
+        <button class="flash-btn" id="flashBtn" title="Flashlight">
+          <span class="icon off">🔦</span>
+        </button>
       </div>
       <div class="right-group">
         <button class="install-btn hidden" id="installBtn"><span class="icon">📲</span> Install</button>
@@ -1179,12 +1208,12 @@
         </div>
       </div>
 
-      <!-- ORIENTATION CONTROLS -->
-      <div class="orientation-controls">
-        <button class="btn-orientation active" id="orientLandscape" data-mode="landscape">
+      <!-- ORIENTATION TOGGLE - BEAUTIFUL & CENTERED -->
+      <div class="orientation-toggle" id="orientationToggle">
+        <button class="toggle-btn active" id="orientLandscape" data-mode="landscape">
           <span class="icon">📱</span> Landscape
         </button>
-        <button class="btn-orientation" id="orientPortrait" data-mode="portrait">
+        <button class="toggle-btn" id="orientPortrait" data-mode="portrait">
           <span class="icon">📱</span> Portrait
         </button>
       </div>
@@ -1276,7 +1305,7 @@
   (function() {
     "use strict";
 
-    var APP_VERSION = '1.0.3';
+    var APP_VERSION = '1.3.0';
     var STORAGE_KEY = 'beddecor_suggestions';
     var VERSION_KEY = 'beddecor_version';
 
@@ -1291,10 +1320,14 @@
       selectedSuggestions: [],
       editingIndex: -1,
       videoStream: null,
+      videoTrack: null,
       isVideoRunning: false,
       isInitializing: false,
       isSending: false,
-      orientation: 'landscape'
+      orientation: 'landscape',
+      flashOn: false,
+      flashSupported: false,
+      imageCapture: null
     };
 
     // DOM REFS
@@ -1342,6 +1375,7 @@
     var installBtn = document.getElementById('installBtn');
     var orientLandscape = document.getElementById('orientLandscape');
     var orientPortrait = document.getElementById('orientPortrait');
+    var flashBtn = document.getElementById('flashBtn');
 
     // ============================================================
     // VERSION & STORAGE
@@ -1434,27 +1468,65 @@
     }
 
     // ============================================================
-    // ORIENTATION
+    // FLASHLIGHT
+    // ============================================================
+    function toggleFlash() {
+      if (!state.videoTrack) {
+        setStatus('⚠️ Camera not ready', 'warning');
+        return;
+      }
+
+      var capabilities = state.videoTrack.getCapabilities ? state.videoTrack.getCapabilities() : null;
+      if (!capabilities || !capabilities.torch) {
+        setStatus('⚠️ Flash not available on this device', 'error');
+        return;
+      }
+
+      state.flashOn = !state.flashOn;
+      
+      try {
+        state.videoTrack.applyConstraints({
+          advanced: [{ torch: state.flashOn }]
+        }).then(function() {
+          flashBtn.classList.toggle('on', state.flashOn);
+          var icon = flashBtn.querySelector('.icon');
+          if (state.flashOn) {
+            icon.className = 'icon';
+            setStatus('🔦 Flash ON', 'success');
+          } else {
+            icon.className = 'icon off';
+            setStatus('🔦 Flash OFF', 'info');
+          }
+        }).catch(function(err) {
+          console.error('Flash error:', err);
+          state.flashOn = !state.flashOn;
+          setStatus('⚠️ Flash error', 'error');
+        });
+      } catch (err) {
+        console.error('Flash error:', err);
+        state.flashOn = !state.flashOn;
+        setStatus('⚠️ Flash not supported', 'error');
+      }
+    }
+
+    // ============================================================
+    // ORIENTATION UI (GUIDE ONLY)
     // ============================================================
     function setOrientation(mode) {
       state.orientation = mode;
       orientLandscape.classList.toggle('active', mode === 'landscape');
       orientPortrait.classList.toggle('active', mode === 'portrait');
-      restartCameraWithOrientation(mode);
-    }
-    
-    function restartCameraWithOrientation(mode) {
-      if (state.isVideoRunning) {
-        stopCamera();
-        setTimeout(function() {
-          startCameraWithOrientation(mode);
-        }, 300);
+      if (mode === 'landscape') {
+        setStatus('📱 Hold phone horizontally', 'info');
       } else {
-        startCameraWithOrientation(mode);
+        setStatus('📱 Hold phone vertically', 'info');
       }
     }
     
-    function startCameraWithOrientation(mode) {
+    // ============================================================
+    // CAMERA
+    // ============================================================
+    function startCamera() {
       if (state.isVideoRunning) return;
       if (state.isInitializing) return;
 
@@ -1463,24 +1535,31 @@
         return;
       }
 
-      var isLandscape = (mode === 'landscape');
-      var width = isLandscape ? 1920 : 1080;
-      var height = isLandscape ? 1080 : 1920;
-
       state.isInitializing = true;
       setStatus('📷 Starting camera...', 'warning');
 
       navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: 'environment',
-          width: { ideal: width },
-          height: { ideal: height },
-          aspectRatio: { ideal: isLandscape ? 16/9 : 9/16 }
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
         },
         audio: false
       })
       .then(function(stream) {
         state.videoStream = stream;
+        state.videoTrack = stream.getVideoTracks()[0];
+        
+        // Check flash support
+        var capabilities = state.videoTrack.getCapabilities ? state.videoTrack.getCapabilities() : null;
+        state.flashSupported = capabilities && capabilities.torch;
+        flashBtn.style.display = state.flashSupported ? 'flex' : 'none';
+        
+        // Create ImageCapture if available
+        if ('ImageCapture' in window) {
+          state.imageCapture = new ImageCapture(state.videoTrack);
+        }
+        
         liveVideo.srcObject = stream;
         liveVideo.setAttribute('playsinline', 'true');
         liveVideo.setAttribute('webkit-playsinline', 'true');
@@ -1488,7 +1567,7 @@
         liveVideo.style.display = 'block';
         liveVideo.style.width = '100%';
         liveVideo.style.height = '100%';
-        liveVideo.style.objectFit = 'cover';
+        liveVideo.style.objectFit = 'contain';
         liveVideo.style.background = '#000';
         
         mainPlaceholder.style.display = 'none';
@@ -1519,6 +1598,8 @@
         permText.textContent = '✅ Ready';
         state.isInitializing = false;
         renderMainView();
+        
+        console.log('Video dimensions:', liveVideo.videoWidth, 'x', liveVideo.videoHeight);
       })
       .catch(function(error) {
         console.error('Camera error:', error);
@@ -1540,29 +1621,14 @@
       });
     }
 
-    orientLandscape.addEventListener('click', function() {
-      if (state.orientation === 'landscape') return;
-      setOrientation('landscape');
-    });
-
-    orientPortrait.addEventListener('click', function() {
-      if (state.orientation === 'portrait') return;
-      setOrientation('portrait');
-    });
-
-    // ============================================================
-    // CAMERA
-    // ============================================================
-    function startCamera() {
-      startCameraWithOrientation(state.orientation || 'landscape');
-    }
-
     function stopCamera() {
       if (state.videoStream) {
         state.videoStream.getTracks().forEach(function(t) {
           try { t.stop(); } catch (e) {}
         });
         state.videoStream = null;
+        state.videoTrack = null;
+        state.imageCapture = null;
       }
       state.isVideoRunning = false;
       liveVideo.style.display = 'none';
@@ -1576,6 +1642,18 @@
         return;
       }
       startCamera();
+    });
+
+    flashBtn.addEventListener('click', toggleFlash);
+
+    orientLandscape.addEventListener('click', function() {
+      if (state.orientation === 'landscape') return;
+      setOrientation('landscape');
+    });
+
+    orientPortrait.addEventListener('click', function() {
+      if (state.orientation === 'portrait') return;
+      setOrientation('portrait');
     });
 
     // ============================================================
@@ -1998,20 +2076,62 @@
     }
 
     // ============================================================
-    // CAPTURE - SAVE AUTO WITH HIGH QUALITY
+    // renderToDataUrl – bakes orientation into pixels
     // ============================================================
-    function capturePhoto() {
-      if (!state.cameraReady) {
-        startCamera().then(function(started) {
-          if (started) {
-            setTimeout(capturePhoto, 300);
+    function renderToDataUrl(imageBitmap, desiredOrientation) {
+      return new Promise(function(resolve, reject) {
+        try {
+          var imgWidth = imageBitmap.width;
+          var imgHeight = imageBitmap.height;
+          var isLandscape = (imgWidth > imgHeight);
+          var targetLandscape = (desiredOrientation === 'landscape');
+          
+          // If already matches desired orientation, just return as JPEG
+          if ((targetLandscape && isLandscape) || (!targetLandscape && !isLandscape)) {
+            var canvas = document.createElement('canvas');
+            canvas.width = imgWidth;
+            canvas.height = imgHeight;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(imageBitmap, 0, 0);
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+            resolve(dataUrl);
+            return;
           }
-        });
-        return;
-      }
+          
+          // Need to rotate
+          var canvas = document.createElement('canvas');
+          canvas.width = imgHeight;
+          canvas.height = imgWidth;
+          var ctx = canvas.getContext('2d');
+          
+          var angle = 0;
+          if (targetLandscape && !isLandscape) {
+            angle = Math.PI / 2;
+          } else if (!targetLandscape && isLandscape) {
+            angle = -Math.PI / 2;
+          }
+          
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.rotate(angle);
+          ctx.drawImage(imageBitmap, -imgWidth / 2, -imgHeight / 2);
+          
+          var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+          resolve(dataUrl);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
 
-      if (!liveVideo.videoWidth || !liveVideo.videoHeight) {
-        setStatus('⏳ Camera not ready, please wait...', 'warning');
+    // ============================================================
+    // CAPTURE
+    // ============================================================
+    async function capturePhoto() {
+      if (!state.cameraReady) {
+        startCamera();
+        setTimeout(() => {
+          if (state.cameraReady) capturePhoto();
+        }, 500);
         return;
       }
 
@@ -2030,57 +2150,58 @@
       setStatus('📷 Capturing...', 'warning');
 
       try {
-        var canvas = document.createElement('canvas');
-        var videoWidth = liveVideo.videoWidth;
-        var videoHeight = liveVideo.videoHeight;
-        
-        var targetWidth, targetHeight;
-        
-        if (state.orientation === 'landscape') {
-          targetWidth = Math.max(videoWidth, videoHeight);
-          targetHeight = Math.min(videoWidth, videoHeight);
-        } else {
-          targetWidth = Math.min(videoWidth, videoHeight);
-          targetHeight = Math.max(videoWidth, videoHeight);
-        }
-        
-        canvas.width = targetWidth;
-        canvas.height = targetHeight;
-        var ctx = canvas.getContext('2d');
-        
-        var needsRotation = false;
-        if (state.orientation === 'landscape' && videoWidth < videoHeight) {
-          needsRotation = true;
-        } else if (state.orientation === 'portrait' && videoWidth > videoHeight) {
-          needsRotation = true;
-        }
-        
-        if (needsRotation) {
-          ctx.translate(canvas.width / 2, canvas.height / 2);
-          ctx.rotate(Math.PI / 2);
-          ctx.drawImage(liveVideo, -videoHeight / 2, -videoWidth / 2, videoHeight, videoWidth);
-        } else {
-          ctx.drawImage(liveVideo, 0, 0, videoWidth, videoHeight);
+        var photoBlob = null;
+        var imageBitmap = null;
+
+        if (state.imageCapture && typeof state.imageCapture.takePhoto === 'function') {
+          try {
+            var capabilities = await state.imageCapture.getPhotoCapabilities();
+            var maxWidth = capabilities.imageWidth ? capabilities.imageWidth.max : 4032;
+            var maxHeight = capabilities.imageHeight ? capabilities.imageHeight.max : 3024;
+            try {
+              photoBlob = await state.imageCapture.takePhoto({
+                imageWidth: maxWidth,
+                imageHeight: maxHeight
+              });
+            } catch (sizeErr) {
+              console.warn('Sized capture failed, falling back to default', sizeErr);
+              photoBlob = await state.imageCapture.takePhoto();
+            }
+          } catch (capErr) {
+            console.warn('Photo capabilities error, using fallback', capErr);
+            photoBlob = await state.imageCapture.takePhoto();
+          }
         }
 
-        // HIGH QUALITY - 0.95 for JPEG
-        var dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-        
+        if (photoBlob) {
+          imageBitmap = await createImageBitmap(photoBlob, {
+            imageOrientation: 'from-image'
+          });
+        } else {
+          var videoWidth = liveVideo.videoWidth;
+          var videoHeight = liveVideo.videoHeight;
+          var canvas = document.createElement('canvas');
+          canvas.width = videoWidth;
+          canvas.height = videoHeight;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(liveVideo, 0, 0);
+          imageBitmap = await createImageBitmap(canvas);
+        }
+
+        var dataUrl = await renderToDataUrl(imageBitmap, state.orientation);
+        if (imageBitmap) imageBitmap.close();
+
         state.photos[slot].dataUrl = dataUrl;
         state.selectedIndex = slot;
 
         renderMainView();
-        
-        // Flash animation
+
         photoFlash.classList.add('active');
-        setTimeout(function() {
-          photoFlash.classList.remove('active');
-        }, 600);
-        
+        setTimeout(() => photoFlash.classList.remove('active'), 600);
+
         setStatus('✅ Photo ' + (slot+1) + ' saved!', 'success');
-        
-        // Show camera again
-        setTimeout(function() {
+
+        setTimeout(() => {
           if (state.isVideoRunning) {
             liveVideo.style.display = 'block';
             mainPreviewImg.style.display = 'none';
@@ -2088,7 +2209,7 @@
           }
           updateThumbnails();
         }, 300);
-        
+
       } catch (error) {
         console.error('Capture error:', error);
         setStatus('❌ Capture error: ' + error.message, 'error');
@@ -2124,7 +2245,7 @@
     }
 
     // ============================================================
-    // SEND WHATSAPP - SEND FULL QUALITY IMAGES
+    // SEND WHATSAPP - NO DEFAULT TEXT
     // ============================================================
     function sendWhatsApp() {
       var photosToSend = [];
@@ -2146,19 +2267,18 @@
       sendBtn.disabled = true;
       setStatus('📤 Preparing ' + photosToSend.length + ' photo(s)...', 'warning');
 
-      var ticket = ticketInput.value || '';
-      var messageText = ticket || 'Bed Decoration Photos';
-      var encodedMsg = encodeURIComponent('🏨 *' + messageText + '*');
+      // Use the user's message if they typed anything, otherwise empty string
+      var ticket = ticketInput.value.trim() || '';
+      // If no ticket text, don't add any default text - just the photos
+      var messageText = ticket || '';
+      var encodedMsg = encodeURIComponent(messageText ? '🏨 *' + messageText + '*' : '');
 
-      // Try Web Share API with multiple files
       if (navigator.share) {
         var filePromises = photosToSend.map(function(photo) {
-          // Fetch the full quality image
           return fetch(photo.dataUrl)
             .then(function(res) { return res.blob(); })
             .then(function(blob) {
               var num = photo.index + 1;
-              // Create file with proper name
               return new File([blob], 'bed_decor_photo_' + num + '.jpg', { 
                 type: 'image/jpeg' 
               });
@@ -2167,12 +2287,13 @@
 
         Promise.all(filePromises)
           .then(function(files) {
-            // If multiple photos, send them all at once
             var shareData = {
               title: 'Bed Decor',
-              text: messageText,
               files: files
             };
+            if (messageText) {
+              shareData.text = messageText;
+            }
 
             if (navigator.canShare && navigator.canShare(shareData)) {
               navigator.share(shareData)
@@ -2214,13 +2335,12 @@
     }
 
     // ============================================================
-    // THUMBNAILS - PROFESSIONAL FULL SCREEN VIEW
+    // THUMBNAILS
     // ============================================================
     thumbnails.forEach(function(thumb, idx) {
       thumb.addEventListener('click', function(e) {
         e.preventDefault();
         if (state.photos[idx].dataUrl) {
-          // Show full screen professional view
           imageViewImg.src = state.photos[idx].dataUrl;
           photoInfo.textContent = '📸 Photo ' + (idx + 1);
           imageViewModal.classList.add('active');
@@ -2307,14 +2427,12 @@
       updateCharCount();
       updateSettingsBadge();
       
+      flashBtn.style.display = 'none';
+      
       setStatus('📷 Starting camera...', 'info');
       
       setTimeout(function() {
-        startCamera().then(function(started) {
-          if (!started) {
-            setStatus('📷 Tap "Allow Camera" to start', 'warning');
-          }
-        });
+        startCamera();
       }, 300);
     }
 
